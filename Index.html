@@ -75,7 +75,24 @@
     .actions { grid-column: 1 / -1; text-align: right; margin-top: 10px; }
     button.action { padding: 12px 24px; background: #c92a2a; color: white; border: none; border-radius: 8px; cursor: pointer; margin-left: 8px; font-size: 16px; font-weight: 600; }
     button.action:hover { background: #a61e1e; }
-    .results { margin-top: 20px; }
+    .results-nav { text-align: center; margin-bottom: 25px; border-bottom: 1px solid var(--border-color); padding-bottom: 15px;}
+    .results-nav button {
+        background: transparent;
+        border: 1px solid transparent;
+        color: #495057;
+        padding: 8px 16px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 500;
+        transition: background-color 0.3s, color 0.3s;
+    }
+    .results-nav button.active {
+        background-color: var(--primary-light);
+        color: var(--primary-color);
+        font-weight: 600;
+    }
+    .result-section { display: none; }
+    .result-section.active { display: block; }
     .table-container { overflow-x: auto; }
     table.table-cedula { border-collapse: collapse; width: 100%; margin-bottom: 25px; box-shadow: 0 4px 12px var(--shadow-color); border-radius: 8px; overflow: hidden; }
     .table-cedula th, .table-cedula td { border: 1px solid var(--border-color); padding: 10px 12px; text-align: center; font-size: 14px; }
@@ -149,6 +166,11 @@
     </div>
     
     <div id="resultados" class="tab">
+      <div class="results-nav">
+        <button id="btn-cedulas" class="active" onclick="showResultSection('cedulas')">Cédulas Operativas</button>
+        <button id="btn-edo-costos" onclick="showResultSection('edo-costos')">Estado de Costos</button>
+        <button id="btn-edo-resultados" onclick="showResultSection('edo-resultados')">Estado de Resultados</button>
+      </div>
       <div class="results" id="resultadosOutput"></div>
       <div style="text-align:right;"><button class="action" onclick="descargarExcel()">Exportar a Excel</button></div>
     </div>
@@ -158,11 +180,19 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
 
   <script>
-    // --- Funciones de Utilidad ---
+    // --- Funciones de Navegación ---
     function showTab(id) {
       document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
       document.getElementById(id).classList.add('active');
     }
+    function showResultSection(id) {
+        document.querySelectorAll('.result-section').forEach(s => s.classList.remove('active'));
+        document.getElementById(`section-${id}`).classList.add('active');
+        document.querySelectorAll('.results-nav button').forEach(b => b.classList.remove('active'));
+        document.getElementById(`btn-${id}`).classList.add('active');
+    }
+
+    // --- Funciones de Utilidad ---
     function formatPeso(val) {
       return val.toLocaleString('es-MX', { style: 'currency', currency: 'MXN' });
     }
@@ -184,10 +214,7 @@
       const costoStd_CIF_unit = d.cuCIF;
       results.costoUnitarioEstandar = costoStd_MPD_unit + costoStd_MOD_unit + costoStd_CIV_unit + costoStd_CIF_unit;
       
-      results.ced1 = {
-          impMP: d.nivel * costoStd_MPD_unit, impMOD: d.nivel * costoStd_MOD_unit,
-          impCIV: d.nivel * costoStd_CIV_unit, impCIF: d.nivel * costoStd_CIF_unit,
-      };
+      results.ced1 = { impMP: d.nivel * costoStd_MPD_unit, impMOD: d.nivel * costoStd_MOD_unit, impCIV: d.nivel * costoStd_CIV_unit, impCIF: d.nivel * costoStd_CIF_unit };
       results.ced1.total = results.ced1.impMP + results.ced1.impMOD + results.ced1.impCIV + results.ced1.impCIF;
       
       results.ced2 = {
@@ -267,12 +294,13 @@
       window.costResults = results;
       generarHTMLResultados();
       showTab('resultados');
+      showResultSection('cedulas');
     }
 
     // --- Generador de Vistas HTML ---
     function generarHTMLResultados() {
         const { inputs: d, ced1, ced2, ced3, ced4, ced5, ced6, er, costoUnitarioEstandar, estadoCostos } = window.costResults;
-        let html = '<div class="single-column-container">';
+        let html = '<div id="section-cedulas" class="result-section active">';
         
         html += `<div class="table-container"><table class="table-cedula"><tr><th colspan="4" class="table-header">Ced I. Hoja de Costo Estándar</th></tr><tr class="table-subheader"><th>Concepto</th><th>Req.</th><th>C.U.</th><th>Importe</th></tr><tr><td>MPD</td><td>${d.reqMPD}</td><td>${formatPeso(d.cuMPD)}</td><td>${formatPeso(d.reqMPD * d.cuMPD)}</td></tr><tr><td>MOD</td><td>${d.reqMOD}</td><td>${formatPeso(d.cuMOD)}</td><td>${formatPeso(d.reqMOD * d.cuMOD)}</td></tr><tr><td>CIV</td><td>${d.reqMOD}</td><td>${formatPeso(d.cuCIV / d.reqMOD)}</td><td>${formatPeso(d.cuCIV)}</td></tr><tr><td>CIF</td><td>${d.reqMOD}</td><td>${formatPeso(d.cuCIF / d.reqMOD)}</td><td>${formatPeso(d.cuCIF)}</td></tr><tr class="table-total"><td colspan="3">Costo Unitario Estándar</td><td>${formatPeso(costoUnitarioEstandar)}</td></tr></table></div>`;
         html += `<div class="table-container"><table class="table-cedula"><tr><th colspan="5" class="table-header">Ced II. Valuación de Producción Terminada</th></tr><tr class="table-subheader"><th>Concepto</th><th>Req. U.</th><th>Req. Total</th><th>C.U.</th><th>Importe</th></tr><tr><td>MPD</td><td>${d.reqMPD}</td><td>${ced2.reqMPD.toLocaleString()}</td><td>${formatPeso(d.cuMPD)}</td><td>${formatPeso(ced2.impMPD)}</td></tr><tr><td>MOD</td><td>${d.reqMOD}</td><td>${ced2.reqMOD.toLocaleString()}</td><td>${formatPeso(d.cuMOD)}</td><td>${formatPeso(ced2.impMOD)}</td></tr><tr><td>CIV</td><td>${d.reqMOD}</td><td>${ced2.reqCIV.toLocaleString()}</td><td>${formatPeso(d.cuCIV / d.reqMOD)}</td><td>${formatPeso(ced2.impCIV)}</td></tr><tr><td>CIF</td><td>${d.reqMOD}</td><td>${ced2.reqCIF.toLocaleString()}</td><td>${formatPeso(d.cuCIF / d.reqMOD)}</td><td>${formatPeso(ced2.impCIF)}</td></tr><tr class="table-total"><td colspan="4">Costo Total de la Producción Terminada</td><td>${formatPeso(ced2.total)}</td></tr></table></div>`;
@@ -295,7 +323,7 @@
         html += '</div>';
 
         // Estado de Costos
-        html += `<h2>Estado de Costos de Producción y Ventas</h2><div class="grid-container">`;
+        html += `<div id="section-edo-costos" class="result-section"><h2>Estado de Costos de Producción y Ventas</h2><div class="grid-container">`;
         const createCostStatementHTML = (title, data) => `<div><div class="table-container"><table class="table-cedula">
             <tr><th colspan="2" class="table-header">${title}</th></tr>
             <tr><td class="text-left">Materia Prima Directa Consumida</td><td class="text-right">${formatPeso(data.mpdConsumida)}</td></tr>
@@ -315,10 +343,10 @@
             </table></div></div>`;
         html += createCostStatementHTML('MÉTODO ABSORBENTE', estadoCostos.absorbente);
         html += createCostStatementHTML('MÉTODO DIRECTO', estadoCostos.directo);
-        html += `</div>`;
+        html += `</div></div>`;
 
         // Estado de Resultados Detallado
-        html += `<h2>Estado de Resultados Detallado</h2><div class="grid-container">`;
+        html += `<div id="section-edo-resultados" class="result-section"><h2>Estado de Resultados Detallado</h2><div class="grid-container">`;
         html += `<div><div class="table-container"><table class="table-cedula">
             <tr><th colspan="2" class="table-header">Método Absorbente</th></tr>
             <tr><td class="text-left">Ventas Netas</td><td class="text-right">${formatPeso(er.ventas)}</td></tr>
@@ -332,7 +360,7 @@
             <tr class="table-total"><td class="text-left">Utilidad de Operación</td><td class="text-right">${formatPeso(er.utilidadOperativa)}</td></tr>
         </table></div></div>`;
         html += '<div></div>'; // Placeholder for second column if needed
-        html += '</div>';
+        html += '</div></div>';
         
         document.getElementById('resultadosOutput').innerHTML = html;
     }
@@ -357,8 +385,8 @@
         const titleFont = { name: 'Arial', size: 11, bold: true, color: { argb: '1B5E20' } };
         const boldFont = { name: 'Arial', size: 10, bold: true };
 
-        const favorableFill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'c8e6c9' } };
-        const desfavorableFill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'ffcdd2' } };
+        const favorableFill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'e6ffed' } };
+        const desfavorableFill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'ffebe6' } };
 
         // --- HOJA 1: Cédulas de Costos ---
         const cedulasSheet = workbook.addWorksheet('Cédulas de Costos');
@@ -435,7 +463,7 @@
             [{value: 'CIV'}, {value: d.reqMOD, numFmt: numberFormat}, {value: ced3.reqCI, numFmt: numberFormat}, {value: d.cuCIV / d.reqMOD, numFmt: moneyFormat}, {value: ced3.impCIV, numFmt: moneyFormat}],
             [{value: 'CIF'}, {value: d.reqMOD, numFmt: numberFormat}, {value: ced3.reqCI, numFmt: numberFormat}, {value: d.cuCIF / d.reqMOD, numFmt: moneyFormat}, {value: ced3.impCIF, numFmt: moneyFormat}]
         ], total: { text: 'Costo Total del Inventario en Proceso', colSpan: 4, value: ced3.total }});
-
+        
         addTableToSheet({ title: 'Ced V. Valuación de la Producción Terminada', colSpan: 3, headers: ['Unidades Terminadas', 'C.U.E.', 'Costo de la Prod. Term.'], data: [
             [{value: d.terminadas, numFmt: '#,##0'}, {value: costoUnitarioEstandar, numFmt: moneyFormat}, {value: ced5.total, numFmt: moneyFormat}]
         ]});
@@ -509,7 +537,7 @@
             [{value: 'Ventas Netas'}, {value: er.ventas, numFmt: moneyFormat, alignment: rightAlignment}],
             [{value: 'Costo de lo Vendido Estándar'}, {value: er.costoVentasStd, numFmt: moneyFormat, alignment: rightAlignment}],
             [{value: 'Desviaciones'}, {value: ced4.totalDesviaciones, numFmt: moneyFormat, alignment: rightAlignment}],
-            [{value: 'Costo de lo Vendido Real', font: boldFont}, {value: er.costoVentasReal, numFmt: moneyFormat, alignment: rightAlignment, font: boldFont}],
+            [{value: 'Costo de lo Vendido Real', font: boldFont, fill: subheaderFill}, {value: er.costoVentasReal, numFmt: moneyFormat, alignment: rightAlignment, font: boldFont, fill: subheaderFill}],
             [{value: 'Utilidad Bruta', font: boldFont, fill: totalFill}, {value: er.utilidadBruta, numFmt: moneyFormat, alignment: rightAlignment, font: boldFont, fill: totalFill}],
             [{value: 'Gastos de Operación:'}, {}],
             [{value: '   Gastos de Venta'}, {value: -d.gastoVenta, numFmt: moneyFormat, alignment: rightAlignment}],
