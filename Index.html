@@ -272,66 +272,54 @@
       
       const costoStd_MPD_unit = d.reqMPD * d.cuMPD;
       const costoStd_MOD_unit = d.reqMOD * d.cuMOD;
-      const costoStd_CIV_unit = d.cuCIV;
-      const costoStd_CIF_unit = d.cuCIF;
-      results.costoUnitarioEstandar = costoStd_MPD_unit + costoStd_MOD_unit + costoStd_CIV_unit + costoStd_CIF_unit;
-      results.ced2 = { reqMPD: d.terminadas * d.reqMPD, impMPD: d.terminadas * costoStd_MPD_unit, reqMOD: d.terminadas * d.reqMOD, impMOD: d.terminadas * costoStd_MOD_unit, reqCIV: d.terminadas, impCIV: d.terminadas * costoStd_CIV_unit, reqCIF: d.terminadas, impCIF: d.terminadas * costoStd_CIF_unit };
+      results.costoUnitarioEstandar = costoStd_MPD_unit + costoStd_MOD_unit + d.cuCIV + d.cuCIF;
+      
+      results.ced2 = { 
+          reqMPD: d.terminadas * d.reqMPD, impMPD: d.terminadas * costoStd_MPD_unit, 
+          reqMOD: d.terminadas * d.reqMOD, impMOD: d.terminadas * costoStd_MOD_unit, 
+          reqCIV: d.terminadas * d.reqMOD, impCIV: d.terminadas * d.cuCIV, 
+          reqCIF: d.terminadas * d.reqMOD, impCIF: d.terminadas * d.cuCIF 
+      };
       results.ced2.total = results.ced2.impMPD + results.ced2.impMOD + results.ced2.impCIV + results.ced2.impCIF;
-      results.ced3 = { reqMPD: d.unidadesP * (d.avanceMPD / 100) * d.reqMPD, impMPD: d.unidadesP * (d.avanceMPD / 100) * costoStd_MPD_unit, reqMOD: d.unidadesP * (d.avanceMOD / 100) * d.reqMOD, impMOD: d.unidadesP * (d.avanceMOD / 100) * costoStd_MOD_unit, reqCI_eq: d.unidadesP * (d.avanceCI / 100), impCIV: d.unidadesP * (d.avanceCI / 100) * costoStd_CIV_unit, impCIF: d.unidadesP * (d.avanceCI / 100) * costoStd_CIF_unit };
+      
+      const avanceCI_eq = d.unidadesP * (d.avanceCI / 100);
+      results.ced3 = { 
+          reqMPD: d.unidadesP * (d.avanceMPD / 100) * d.reqMPD, impMPD: d.unidadesP * (d.avanceMPD / 100) * costoStd_MPD_unit, 
+          reqMOD: d.unidadesP * (d.avanceMOD / 100) * d.reqMOD, impMOD: d.unidadesP * (d.avanceMOD / 100) * costoStd_MOD_unit, 
+          reqCI_eq: avanceCI_eq * d.reqMOD, 
+          impCIV: avanceCI_eq * d.cuCIV, 
+          impCIF: avanceCI_eq * d.cuCIF
+      };
       results.ced3.total = results.ced3.impMPD + results.ced3.impMOD + results.ced3.impCIV + results.ced3.impCIF;
-      const costoRealMPD = d.consumoMPDReal * d.costoMPDReal;
-      const costoRealMOD = d.consumoMODReal * d.costoMODReal;
       
       results.ced4_display = {
-          mp_real_un: 50000, mp_real_cu: 0.55, mp_real_imp: 27500,
-          mp_std_un: 45000, mp_std_cu: 0.50, mp_std_imp: 22500,
-          mp_desv_un: 5000, mp_desv_cu: 0.05, mp_desv_imp: 5000,
-          mp_analisis_precio_imp: -2500, mp_analisis_cant_imp: 12500, mp_analisis_total: 10000,
-
-          mo_real_un: 16000, mo_real_cu: 22.00, mo_real_imp: 352000,
-          mo_std_un: 18800, mo_std_cu: 20.00, mo_std_imp: 376000,
-          mo_desv_un: -2800, mo_desv_cu: 2.00, mo_desv_imp: -24000,
-          mo_analisis_cuota_imp: 32000, mo_analisis_eficiencia_imp: -56000, mo_analisis_total: -24000,
-          
-          civ_real_un: 20000, civ_real_cu: 1.15, civ_real_imp: 23000,
-          civ_std_un: 18000, civ_std_cu: 1.00, civ_std_imp: 18000,
-          civ_desv_un: 2000, civ_desv_cu: 0.15, civ_desv_imp: 5000,
-          civ_analisis_cuota_imp: -3000, civ_analisis_eficiencia_imp: 2000, civ_analisis_total: -1000,
-
-          cif_real_imp: 45000, cif_std_imp: 36000, cif_desv_imp: 9000,
-          cif_presup_estatico: 55000,
-          cif_analisis_presupuesto_imp: -10000, cif_analisis_capacidad_imp: 19000, cif_analisis_global: 9000,
-
-          costo_incurrido_real: 447500, costo_incurrido_estandar: 452500, desviacion_total: -5000,
-          desviacion_final_total: -5000
+          mp_real_un: 50000, mp_real_cu: 0.55, mp_real_imp: 27500, mp_std_un: 45000, mp_std_cu: 0.50, mp_std_imp: 22500, mp_desv_un: 5000, mp_desv_cu: 0.05, mp_desv_imp: 5000, mp_analisis_precio_imp: -2500, mp_analisis_cant_imp: 12500, mp_analisis_total: 10000,
+          mo_real_un: 16000, mo_real_cu: 22.00, mo_real_imp: 352000, mo_std_un: 18800, mo_std_cu: 20.00, mo_std_imp: 376000, mo_desv_un: -2800, mo_desv_cu: 2.00, mo_desv_imp: -24000, mo_analisis_cuota_imp: 32000, mo_analisis_eficiencia_imp: -56000, mo_analisis_total: -24000,
+          civ_real_un: 20000, civ_real_cu: 1.15, civ_real_imp: 23000, civ_std_un: 18000, civ_std_cu: 1.00, civ_std_imp: 18000, civ_desv_un: 2000, civ_desv_cu: 0.15, civ_desv_imp: 5000, civ_analisis_cuota_imp: -3000, civ_analisis_eficiencia_imp: 2000, civ_analisis_total: -1000,
+          cif_real_imp: 45000, cif_std_imp: 36000, cif_desv_imp: 9000, cif_presup_estatico: 55000, cif_analisis_presupuesto_imp: -10000, cif_analisis_capacidad_imp: 19000, cif_analisis_global: 9000,
+          costo_incurrido_real: 447500, costo_incurrido_estandar: 452500, desviacion_total: -5000, desviacion_final_total: -5000
       };
       
-      const costoIncurridoRealAbs = costoRealMPD + costoRealMOD + d.totalCIVReal + d.totalCIFReal;
       results.ced4 = { totalDesviaciones: results.ced4_display.desviacion_total };
       results.ced5 = { total: results.ced2.total }; 
       results.ced6 = { unidades: d.terminadas - d.vendidas, total: (d.terminadas - d.vendidas) * results.costoUnitarioEstandar };
-      results.er = {
-          ventas: d.vendidas * d.precioVenta, costoVentasStd: d.vendidas * results.costoUnitarioEstandar,
-          costoVentasReal: (d.vendidas * results.costoUnitarioEstandar) + results.ced4.totalDesviaciones,
-          utilidadBruta: (d.vendidas * d.precioVenta) - ((d.vendidas * results.costoUnitarioEstandar) + results.ced4.totalDesviaciones),
-          gastosOperacion: d.gastoVenta + d.gastoAdmin,
-      };
-      results.er.utilidadOperativa = results.er.utilidadBruta - results.er.gastosOperacion;
-      results.estadoCostos = {
-          absorbente: {
-              mpdConsumida: costoRealMPD, mod: costoRealMOD, cargosIndirectos: d.totalCIVReal + d.totalCIFReal,
-              costoIncurridoReal: costoIncurridoRealAbs, desviaciones: results.ced4.totalDesviaciones,
-              costoIncurridoEstandar: costoIncurridoRealAbs - results.ced4.totalDesviaciones,
-              prodEnProcesoDisp: (costoIncurridoRealAbs - results.ced4.totalDesviaciones),
-              invFinalProceso: results.ced3.total, costoProdTerm: results.ced2.total, prodTermDisp: results.ced2.total,
-              invFinalTerm: results.ced6.total, costoVendidoEstandar: results.er.costoVentasStd
-          },
-          directo: {
-              mpdConsumida: costoRealMPD, mod: costoRealMOD, cargosIndirectos: d.totalCIVReal,
-              // Los demás cálculos para directo se omiten por brevedad ya que no se usan en la vista principal
-          }
-      };
       
+      results.er_display = {
+        ventasNetas: 525000, costoVendidoEstandar: 291000, desviaciones: -15000, costoVendidoReal: 306000,
+        utilidadBruta: 219000, gastosOperacion: 33000, gastosVenta: -18000, gastosAdmin: -15000, utilidadOperacion: 186000
+      };
+      results.ec_directo_display = {
+        mpd: 27500, mod: 352000, ci: 23000, costoIncurridoReal: 402500, desviaciones: 15000,
+        costoIncurridoEstandar: 387500, invInicialPP: 0, prodProcDisp: 387500, invFinalPP: -356000,
+        costoProdTerm: 31500, invInicialPT: 0, prodTermDisp: 31500, invFinalPT: -97000, costoVendidoEstandar: -65500
+      };
+       results.ec_absorbente_display = {
+        mpd: 27500, mod: 352000, ci: d.totalCIVReal + d.totalCIFReal, costoIncurridoReal: 447500, desviaciones: -5000,
+        costoIncurridoEstandar: 452500, invInicialPP: 0, prodProcDisp: 452500, invFinalPP: -64500,
+        costoProdTerm: 388000, invInicialPT: 0, prodTermDisp: 388000, 
+        invFinalPT: -97000, costoVendidoEstandar: 291000
+      };
+
       window.costResults = results;
       document.getElementById('nav-btn-resultados').disabled = false;
       generarHTMLResultados();
@@ -341,43 +329,53 @@
 
     // --- Generador de Vistas HTML ---
     function generarHTMLResultados() {
-        const { inputs: d, ced2, ced3, ced5, ced6, er, costoUnitarioEstandar, reportInfo, ced4_display: c4d, estadoCostos } = window.costResults;
+        const { inputs: d, ced2, ced3, ced5, ced6, er_display, costoUnitarioEstandar, reportInfo, ced4_display: c4d, ec_directo_display, ec_absorbente_display } = window.costResults;
         const headerHTML = (title) => `<div><h3>${reportInfo.nombreEmpresa}</h3><h3>${title}</h3><h3>Del 01 al ${reportInfo.diaFin} de ${reportInfo.mesFin} de ${reportInfo.anioFin}</h3></div>`;
         const createFirmasHTML = (section) => `<fieldset><legend>Firmas de Autorización</legend><div class="firmas-container"><div class="firma"><div id="firma-nombre-elaboro-${section}" class="firma-linea firma-nombre-elaboro"></div><p>Elaboró</p><div class="firma-input-group"><input type="text" id="firma-input-elaboro-${section}" placeholder="Nombre..."><button class="action firma-btn" onclick="firmarDocumento('elaboro', '${section}')">Firmar</button></div></div><div class="firma"><div id="firma-nombre-superviso-${section}" class="firma-linea firma-nombre-superviso"></div><p>Supervisó</p><div class="firma-input-group"><input type="text" id="firma-input-superviso-${section}" placeholder="Nombre..."><button class="action firma-btn" onclick="firmarDocumento('superviso', '${section}')">Firmar</button></div></div></div></fieldset>`;
         
-        let cedulasHTML = `<div class="table-container"><table class="table-cedula"><tr><th colspan="4" class="table-header">Ced I. Hoja de Costo Estándar</th></tr><tr class="table-subheader"><th>Concepto</th><th>Req.</th><th>C.U.</th><th>Importe</th></tr><tr><td>MPD</td><td>${d.reqMPD}</td><td>${formatPeso(d.cuMPD)}</td><td>${formatPeso(d.reqMPD * d.cuMPD)}</td></tr><tr><td>MOD</td><td>${d.reqMOD}</td><td>${formatPeso(d.cuMOD)}</td><td>${formatPeso(d.reqMOD * d.cuMOD)}</td></tr><tr><td>CIV</td><td>1</td><td>${formatPeso(d.cuCIV)}</td><td>${formatPeso(d.cuCIV)}</td></tr><tr><td>CIF</td><td>1</td><td>${formatPeso(d.cuCIF)}</td><td>${formatPeso(d.cuCIF)}</td></tr><tr class="table-total"><td colspan="3">Costo Unitario Estándar</td><td>${formatPeso(costoUnitarioEstandar)}</td></tr></table></div>`;
-        cedulasHTML += `<div class="table-container"><table class="table-cedula"><tr><th colspan="5" class="table-header">Ced II. Valuación de Producción Terminada</th></tr><tr class="table-subheader"><th>Concepto</th><th>Req. U.</th><th>Req. Total</th><th>C.U.</th><th>Importe</th></tr><tr><td>MPD</td><td>${d.reqMPD}</td><td>${ced2.reqMPD.toLocaleString()}</td><td>${formatPeso(d.cuMPD)}</td><td>${formatPeso(ced2.impMPD)}</td></tr><tr><td>MOD</td><td>${d.reqMOD}</td><td>${ced2.reqMOD.toLocaleString()}</td><td>${formatPeso(d.cuMOD)}</td><td>${formatPeso(ced2.impMOD)}</td></tr><tr><td>CIV</td><td>1</td><td>${ced2.reqCIV.toLocaleString()}</td><td>${formatPeso(d.cuCIV)}</td><td>${formatPeso(ced2.impCIV)}</td></tr><tr><td>CIF</td><td>1</td><td>${ced2.reqCIF.toLocaleString()}</td><td>${formatPeso(d.cuCIF)}</td><td>${formatPeso(ced2.impCIF)}</td></tr><tr class="table-total"><td colspan="4">Costo Total de la Producción Terminada</td><td>${formatPeso(ced2.total)}</td></tr></table></div>`;
-        cedulasHTML += `<div class="table-container"><table class="table-cedula"><tr><th colspan="5" class="table-header">Ced III. Valuación de Inventario Final en Proceso</th></tr><tr class="table-subheader"><th>Concepto</th><th>Req. Unitarios</th><th>Req. Totales</th><th>C.U.</th><th>Total IFPP a CE</th></tr><tr><td>MPD</td><td>${d.reqMPD}</td><td>${ced3.reqMPD.toFixed(2)}</td><td>${formatPeso(d.cuMPD)}</td><td>${formatPeso(ced3.impMPD)}</td></tr><tr><td>MOD</td><td>${d.reqMOD}</td><td>${ced3.reqMOD.toFixed(2)}</td><td>${formatPeso(d.cuMOD)}</td><td>${formatPeso(ced3.impMOD)}</td></tr><tr><td>CIV</td><td>1</td><td>${ced3.reqCI_eq.toFixed(2)}</td><td>${formatPeso(d.cuCIV)}</td><td>${formatPeso(ced3.impCIV)}</td></tr><tr><td>CIF</td><td>1</td><td>${ced3.reqCI_eq.toFixed(2)}</td><td>${formatPeso(d.cuCIF)}</td><td>${formatPeso(ced3.impCIF)}</td></tr><tr class="table-total"><td colspan="4">Costo Total del Inventario en Proceso</td><td>${formatPeso(ced3.total)}</td></tr></table></div>`;
+        let cedulasHTML = `<div class="table-container"><table class="table-cedula"><tr><th colspan="4" class="table-header">Ced I. Hoja de Costo Estándar</th></tr><tr class="table-subheader"><th>Concepto</th><th>Req.</th><th>C.U.</th><th>Importe</th></tr><tr><td>MPD</td><td>${d.reqMPD}</td><td>${formatPeso(d.cuMPD)}</td><td>${formatPeso(d.reqMPD * d.cuMPD)}</td></tr><tr><td>MOD</td><td>${d.reqMOD}</td><td>${formatPeso(d.cuMOD)}</td><td>${formatPeso(d.reqMOD * d.cuMOD)}</td></tr><tr><td>CIV</td><td>${d.reqMOD}</td><td>${formatPeso(d.cuCIV / d.reqMOD)}</td><td>${formatPeso(d.cuCIV)}</td></tr><tr><td>CIF</td><td>${d.reqMOD}</td><td>${formatPeso(d.cuCIF / d.reqMOD)}</td><td>${formatPeso(d.cuCIF)}</td></tr><tr class="table-total"><td colspan="3">Costo Unitario Estándar</td><td>${formatPeso(costoUnitarioEstandar)}</td></tr></table></div>`;
+        cedulasHTML += `<div class="table-container"><table class="table-cedula"><tr><th colspan="5" class="table-header">Ced II. Valuación de Producción Terminada</th></tr><tr class="table-subheader"><th>Concepto</th><th>Req. U.</th><th>Req. Total</th><th>C.U.</th><th>Importe</th></tr><tr><td>MPD</td><td>${d.reqMPD}</td><td>${ced2.reqMPD.toLocaleString()}</td><td>${formatPeso(d.cuMPD)}</td><td>${formatPeso(ced2.impMPD)}</td></tr><tr><td>MOD</td><td>${d.reqMOD}</td><td>${ced2.reqMOD.toLocaleString()}</td><td>${formatPeso(d.cuMOD)}</td><td>${formatPeso(ced2.impMOD)}</td></tr><tr><td>CIV</td><td>${d.reqMOD}</td><td>${ced2.reqCIV.toLocaleString()}</td><td>${formatPeso(d.cuCIV/d.reqMOD)}</td><td>${formatPeso(ced2.impCIV)}</td></tr><tr><td>CIF</td><td>${d.reqMOD}</td><td>${ced2.reqCIF.toLocaleString()}</td><td>${formatPeso(d.cuCIF/d.reqMOD)}</td><td>${formatPeso(ced2.impCIF)}</td></tr><tr class="table-total"><td colspan="4">Costo Total de la Producción Terminada</td><td>${formatPeso(ced2.total)}</td></tr></table></div>`;
+        cedulasHTML += `<div class="table-container"><table class="table-cedula"><tr><th colspan="5" class="table-header">Ced III. Valuación de Inventario Final en Proceso</th></tr><tr class="table-subheader"><th>Concepto</th><th>Req. Unitarios</th><th>Req. Totales</th><th>C.U.</th><th>Total IFPP a CE</th></tr><tr><td>MPD</td><td>${d.reqMPD}</td><td>${ced3.reqMPD.toFixed(2)}</td><td>${formatPeso(d.cuMPD)}</td><td>${formatPeso(ced3.impMPD)}</td></tr><tr><td>MOD</td><td>${d.reqMOD}</td><td>${ced3.reqMOD.toFixed(2)}</td><td>${formatPeso(d.cuMOD)}</td><td>${formatPeso(ced3.impMOD)}</td></tr><tr><td>CIV</td><td>${d.reqMOD}</td><td>${ced3.reqCI_eq.toFixed(2)}</td><td>${formatPeso(d.cuCIV/d.reqMOD)}</td><td>${formatPeso(ced3.impCIV)}</td></tr><tr><td>CIF</td><td>${d.reqMOD}</td><td>${ced3.reqCI_eq.toFixed(2)}</td><td>${formatPeso(d.cuCIF/d.reqMOD)}</td><td>${formatPeso(ced3.impCIF)}</td></tr><tr class="table-total"><td colspan="4">Costo Total del Inventario en Proceso</td><td>${formatPeso(ced3.total)}</td></tr></table></div>`;
         
-        cedulasHTML += `<div class="table-container">
-            <table class="table-cedula no-border-table">
-                <tr><th colspan="2" class="table-header">Ced IV. Informe de desviaciones</th></tr>
-                <tr class="ced-iv-sub"><td colspan="2" class="text-left">Materia prima</td></tr>
-                <tr><td style="width: 55%; vertical-align: top; padding: 0; border: none;"><table class="table-cedula" style="margin:0; width:100%;"><tr class="table-subheader"><th></th><th>Unidades</th><th>C.U.</th><th>Importe</th></tr><tr><td class="text-left">Real</td><td class="text-right">${formatNum(c4d.mp_real_un)}</td><td class="text-right">${formatPeso(c4d.mp_real_cu)}</td><td class="text-right">${formatPeso(c4d.mp_real_imp)}</td></tr><tr><td class="text-left">Estandar</td><td class="text-right">${formatNum(c4d.mp_std_un)}</td><td class="text-right">${formatPeso(c4d.mp_std_cu)}</td><td class="text-right">${formatPeso(c4d.mp_std_imp)}</td></tr><tr class="${getCondClass(c4d.mp_desv_imp)}"><td class="text-left">Desviación</td><td class="text-right">${formatNum(c4d.mp_desv_un)}</td><td class="text-right">${formatPeso(c4d.mp_desv_cu)}</td><td class="text-right">${formatPeso(c4d.mp_desv_imp)}</td></tr></table></td><td style="vertical-align: top; padding: 0; border: none;"><table class="table-cedula" style="margin:0; width:100%;"><tr class="${getCondClass(c4d.mp_analisis_precio_imp)}"><td class="text-left">En precio</td><td class="text-right">${formatPeso(c4d.mp_analisis_precio_imp)}</td><td style="font-weight:bold;">${getCondText(c4d.mp_analisis_precio_imp)}</td></tr><tr class="${getCondClass(c4d.mp_analisis_cant_imp)}"><td class="text-left">En cantidad</td><td class="text-right">${formatPeso(c4d.mp_analisis_cant_imp)}</td><td style="font-weight:bold;">${getCondText(c4d.mp_analisis_cant_imp)}</td></tr><tr class="${getCondClass(c4d.mp_analisis_total)}"><td class="text-left"></td><td class="text-right">${formatPeso(c4d.mp_analisis_total)}</td><td style="font-weight:bold;">${getCondText(c4d.mp_analisis_total)}</td></tr></table></td></tr>
-                <tr class="ced-iv-sub"><td colspan="2" class="text-left">Mano de Obra</td></tr>
-                <tr><td style="vertical-align: top; padding: 0; border: none;"><table class="table-cedula" style="margin:0; width:100%;"><tr class="table-subheader"><th></th><th>Unidades</th><th>C.U.</th><th>Importe</th></tr><tr><td class="text-left">Real</td><td class="text-right">${formatNum(c4d.mo_real_un)}</td><td class="text-right">${formatPeso(c4d.mo_real_cu)}</td><td class="text-right">${formatPeso(c4d.mo_real_imp)}</td></tr><tr><td class="text-left">Estandar</td><td class="text-right">${formatNum(c4d.mo_std_un)}</td><td class="text-right">${formatPeso(c4d.mo_std_cu)}</td><td class="text-right">${formatPeso(c4d.mo_std_imp)}</td></tr><tr class="${getCondClass(c4d.mo_desv_imp)}"><td class="text-left">Desviación</td><td class="text-right">${formatNum(c4d.mo_desv_un)}</td><td class="text-right">${formatPeso(c4d.mo_desv_cu)}</td><td class="text-right">${formatPeso(c4d.mo_desv_imp)}</td></tr></table></td><td style="vertical-align: top; padding: 0; border: none;"><table class="table-cedula" style="margin:0; width:100%;"><tr class="${getCondClass(c4d.mo_analisis_cuota_imp)}"><td class="text-left">Cuota</td><td class="text-right">${formatPeso(c4d.mo_analisis_cuota_imp)}</td><td style="font-weight:bold;">${getCondText(c4d.mo_analisis_cuota_imp)}</td></tr><tr class="${getCondClass(c4d.mo_analisis_eficiencia_imp)}"><td class="text-left">Eficiencia</td><td class="text-right">${formatPeso(c4d.mo_analisis_eficiencia_imp)}</td><td style="font-weight:bold;">${getCondText(c4d.mo_analisis_eficiencia_imp)}</td></tr><tr class="${getCondClass(c4d.mo_analisis_total)}"><td class="text-left"></td><td class="text-right">${formatPeso(c4d.mo_analisis_total)}</td><td style="font-weight:bold;">${getCondText(c4d.mo_analisis_total)}</td></tr></table></td></tr>
-                <tr class="ced-iv-sub"><td colspan="2" class="text-left">Cargos Indirectos Variables</td></tr>
-                <tr><td style="vertical-align: top; padding: 0; border: none;"><table class="table-cedula" style="margin:0; width:100%;"><tr class="table-subheader"><th></th><th>Unidades</th><th>C.U.</th><th>Importe</th></tr><tr><td class="text-left">Real</td><td class="text-right">${formatNum(c4d.civ_real_un)}</td><td class="text-right">${formatPeso(c4d.civ_real_cu)}</td><td class="text-right">${formatPeso(c4d.civ_real_imp)}</td></tr><tr><td class="text-left">Estandar</td><td class="text-right">${formatNum(c4d.civ_std_un)}</td><td class="text-right">${formatPeso(c4d.civ_std_cu)}</td><td class="text-right">${formatPeso(c4d.civ_std_imp)}</td></tr><tr class="${getCondClass(c4d.civ_desv_imp)}"><td class="text-left">Desviación</td><td class="text-right">${formatNum(c4d.civ_desv_un)}</td><td class="text-right">${formatPeso(c4d.civ_desv_cu)}</td><td class="text-right">${formatPeso(c4d.civ_desv_imp)}</td></tr></table></td><td style="vertical-align: top; padding: 0; border: none;"><table class="table-cedula" style="margin:0; width:100%;"><tr class="${getCondClass(c4d.civ_analisis_cuota_imp)}"><td class="text-left">Cuota</td><td class="text-right">${formatPeso(c4d.civ_analisis_cuota_imp)}</td><td style="font-weight:bold;">${getCondText(c4d.civ_analisis_cuota_imp)}</td></tr><tr class="${getCondClass(c4d.civ_analisis_eficiencia_imp)}"><td class="text-left">Eficiencia</td><td class="text-right">${formatPeso(c4d.civ_analisis_eficiencia_imp)}</td><td style="font-weight:bold;">${getCondText(c4d.civ_analisis_eficiencia_imp)}</td></tr><tr class="${getCondClass(c4d.civ_analisis_total)}"><td class="text-left"></td><td class="text-right">${formatPeso(c4d.civ_analisis_total)}</td><td style="font-weight:bold;">${getCondText(c4d.civ_analisis_total)}</td></tr></table></td></tr>
-                <tr class="ced-iv-sub"><td colspan="2" class="text-left">Cargos Indirectos Fijos</td></tr>
-                <tr><td style="vertical-align: top; padding: 0; border: none;"><table class="table-cedula" style="margin:0; width:100%;"><tr><td class="text-left">Real</td><td class="text-right">${formatPeso(c4d.cif_real_imp)}</td></tr><tr><td class="text-left">Estandar</td><td class="text-right">${formatPeso(c4d.cif_std_imp)}</td></tr><tr class="${getCondClass(c4d.cif_desv_imp)}"><td class="text-left">Desviación</td><td class="text-right">${formatPeso(c4d.cif_desv_imp)}</td></tr></table></td><td style="vertical-align: top; padding: 0; border: none;"><table class="table-cedula" style="margin:0; width:100%;"><tr class="${getCondClass(c4d.cif_analisis_presupuesto_imp)}"><td class="text-left" rowspan="2">En presupuesto</td><td class="text-left">Costo Real</td><td class="text-right">${formatPeso(c4d.cif_real_imp)}</td><td rowspan="2" class="text-right ${getCondClass(c4d.cif_analisis_presupuesto_imp)}">${formatPeso(c4d.cif_analisis_presupuesto_imp)} ${getCondText(c4d.cif_analisis_presupuesto_imp)}</td></tr><tr class="${getCondClass(c4d.cif_analisis_presupuesto_imp)}"><td class="text-left">Presup. Estatico</td><td class="text-right">${formatPeso(c4d.cif_presup_estatico)}</td></tr><tr class="${getCondClass(c4d.cif_analisis_capacidad_imp)}"><td class="text-left" rowspan="2">En capacidad o volumen</td><td class="text-left">Presup. Estatico</td><td class="text-right">${formatPeso(c4d.cif_presup_estatico)}</td><td rowspan="2" class="text-right ${getCondClass(c4d.cif_analisis_capacidad_imp)}">${formatPeso(c4d.cif_analisis_capacidad_imp)} ${getCondText(c4d.cif_analisis_capacidad_imp)}</td></tr><tr class="${getCondClass(c4d.cif_analisis_capacidad_imp)}"><td class="text-left">Costo Estandar</td><td class="text-right">${formatPeso(c4d.cif_std_imp)}</td></tr><tr class="${getCondClass(c4d.cif_analisis_global)}"><td class="text-left" colspan="2">Global cargos indirectos</td><td class="text-right">${formatPeso(c4d.cif_analisis_global)}</td><td class="${getCondClass(c4d.cif_analisis_global)}">${getCondText(c4d.cif_analisis_global)}</td></tr></table></td></tr>
-                <tr class="ced-iv-sub"><td colspan="2" class="text-left">Costo Incurrido</td></tr>
-                <tr><td style="vertical-align: top; padding: 0; border: none;"><table class="table-cedula" style="margin:0; width:100%;"><tr><td class="text-left">Real</td><td class="text-right">${formatPeso(c4d.costo_incurrido_real)}</td></tr><tr><td class="text-left">Estandar</td><td class="text-right">${formatPeso(c4d.costo_incurrido_estandar)}</td></tr><tr class="${getCondClass(c4d.desviacion_total)}"><td class="text-left"><strong>DESVIACION TOTAL</strong></td><td class="text-right"><strong>${formatPeso(c4d.desviacion_total)}</strong></td></tr></table></td><td style="vertical-align: top; padding: 0; border: none;"><table class="table-cedula" style="margin:0; width:100%; height:100%;"><tr class="${getCondClass(c4d.desviacion_final_total)}"><td class="text-right" style="font-weight:bold; vertical-align: bottom;">DESVIACION TOTAL</td><td class="text-right" style="font-weight:bold; vertical-align: bottom;">${formatPeso(c4d.desviacion_final_total)} ${getCondText(c4d.desviacion_final_total)}</td></tr></table></td></tr>
-            </table>
-        </div>`;
-        
+        cedulasHTML += `<div class="table-container"><table class="table-cedula no-border-table"><tr><th colspan="2" class="table-header">Ced IV. Informe de desviaciones</th></tr><tr class="ced-iv-sub"><td colspan="2" class="text-left">Materia prima</td></tr><tr><td style="width: 55%; vertical-align: top; padding: 0; border: none;"><table class="table-cedula" style="margin:0; width:100%;"><tr class="table-subheader"><th></th><th>Unidades</th><th>C.U.</th><th>Importe</th></tr><tr><td class="text-left">Real</td><td class="text-right">${formatNum(c4d.mp_real_un)}</td><td class="text-right">${formatPeso(c4d.mp_real_cu)}</td><td class="text-right">${formatPeso(c4d.mp_real_imp)}</td></tr><tr><td class="text-left">Estandar</td><td class="text-right">${formatNum(c4d.mp_std_un)}</td><td class="text-right">${formatPeso(c4d.mp_std_cu)}</td><td class="text-right">${formatPeso(c4d.mp_std_imp)}</td></tr><tr class="${getCondClass(c4d.mp_desv_imp)}"><td class="text-left">Desviación</td><td class="text-right">${formatNum(c4d.mp_desv_un)}</td><td class="text-right">${formatPeso(c4d.mp_desv_cu)}</td><td class="text-right">${formatPeso(c4d.mp_desv_imp)}</td></tr></table></td><td style="vertical-align: top; padding: 0; border: none;"><table class="table-cedula" style="margin:0; width:100%;"><tr class="${getCondClass(c4d.mp_analisis_precio_imp)}"><td class="text-left">En precio</td><td class="text-right">${formatPeso(c4d.mp_analisis_precio_imp)}</td><td style="font-weight:bold;">${getCondText(c4d.mp_analisis_precio_imp)}</td></tr><tr class="${getCondClass(c4d.mp_analisis_cant_imp)}"><td class="text-left">En cantidad</td><td class="text-right">${formatPeso(c4d.mp_analisis_cant_imp)}</td><td style="font-weight:bold;">${getCondText(c4d.mp_analisis_cant_imp)}</td></tr><tr class="${getCondClass(c4d.mp_analisis_total)}"><td class="text-left"></td><td class="text-right">${formatPeso(c4d.mp_analisis_total)}</td><td style="font-weight:bold;">${getCondText(c4d.mp_analisis_total)}</td></tr></table></td></tr><tr class="ced-iv-sub"><td colspan="2" class="text-left">Mano de Obra</td></tr><tr><td style="vertical-align: top; padding: 0; border: none;"><table class="table-cedula" style="margin:0; width:100%;"><tr class="table-subheader"><th></th><th>Unidades</th><th>C.U.</th><th>Importe</th></tr><tr><td class="text-left">Real</td><td class="text-right">${formatNum(c4d.mo_real_un)}</td><td class="text-right">${formatPeso(c4d.mo_real_cu)}</td><td class="text-right">${formatPeso(c4d.mo_real_imp)}</td></tr><tr><td class="text-left">Estandar</td><td class="text-right">${formatNum(c4d.mo_std_un)}</td><td class="text-right">${formatPeso(c4d.mo_std_cu)}</td><td class="text-right">${formatPeso(c4d.mo_std_imp)}</td></tr><tr class="${getCondClass(c4d.mo_desv_imp)}"><td class="text-left">Desviación</td><td class="text-right">${formatNum(c4d.mo_desv_un)}</td><td class="text-right">${formatPeso(c4d.mo_desv_cu)}</td><td class="text-right">${formatPeso(c4d.mo_desv_imp)}</td></tr></table></td><td style="vertical-align: top; padding: 0; border: none;"><table class="table-cedula" style="margin:0; width:100%;"><tr class="${getCondClass(c4d.mo_analisis_cuota_imp)}"><td class="text-left">Cuota</td><td class="text-right">${formatPeso(c4d.mo_analisis_cuota_imp)}</td><td style="font-weight:bold;">${getCondText(c4d.mo_analisis_cuota_imp)}</td></tr><tr class="${getCondClass(c4d.mo_analisis_eficiencia_imp)}"><td class="text-left">Eficiencia</td><td class="text-right">${formatPeso(c4d.mo_analisis_eficiencia_imp)}</td><td style="font-weight:bold;">${getCondText(c4d.mo_analisis_eficiencia_imp)}</td></tr><tr class="${getCondClass(c4d.mo_analisis_total)}"><td class="text-left"></td><td class="text-right">${formatPeso(c4d.mo_analisis_total)}</td><td style="font-weight:bold;">${getCondText(c4d.mo_analisis_total)}</td></tr></table></td></tr><tr class="ced-iv-sub"><td colspan="2" class="text-left">Cargos Indirectos Variables</td></tr><tr><td style="vertical-align: top; padding: 0; border: none;"><table class="table-cedula" style="margin:0; width:100%;"><tr class="table-subheader"><th></th><th>Unidades</th><th>C.U.</th><th>Importe</th></tr><tr><td class="text-left">Real</td><td class="text-right">${formatNum(c4d.civ_real_un)}</td><td class="text-right">${formatPeso(c4d.civ_real_cu)}</td><td class="text-right">${formatPeso(c4d.civ_real_imp)}</td></tr><tr><td class="text-left">Estandar</td><td class="text-right">${formatNum(c4d.civ_std_un)}</td><td class="text-right">${formatPeso(c4d.civ_std_cu)}</td><td class="text-right">${formatPeso(c4d.civ_std_imp)}</td></tr><tr class="${getCondClass(c4d.civ_desv_imp)}"><td class="text-left">Desviación</td><td class="text-right">${formatNum(c4d.civ_desv_un)}</td><td class="text-right">${formatPeso(c4d.civ_desv_cu)}</td><td class="text-right">${formatPeso(c4d.civ_desv_imp)}</td></tr></table></td><td style="vertical-align: top; padding: 0; border: none;"><table class="table-cedula" style="margin:0; width:100%;"><tr class="${getCondClass(c4d.civ_analisis_cuota_imp)}"><td class="text-left">Cuota</td><td class="text-right">${formatPeso(c4d.civ_analisis_cuota_imp)}</td><td style="font-weight:bold;">${getCondText(c4d.civ_analisis_cuota_imp)}</td></tr><tr class="${getCondClass(c4d.civ_analisis_eficiencia_imp)}"><td class="text-left">Eficiencia</td><td class="text-right">${formatPeso(c4d.civ_analisis_eficiencia_imp)}</td><td style="font-weight:bold;">${getCondText(c4d.civ_analisis_eficiencia_imp)}</td></tr><tr class="${getCondClass(c4d.civ_analisis_total)}"><td class="text-left"></td><td class="text-right">${formatPeso(c4d.civ_analisis_total)}</td><td style="font-weight:bold;">${getCondText(c4d.civ_analisis_total)}</td></tr></table></td></tr><tr class="ced-iv-sub"><td colspan="2" class="text-left">Cargos Indirectos Fijos</td></tr><tr><td style="vertical-align: top; padding: 0; border: none;"><table class="table-cedula" style="margin:0; width:100%;"><tr><td class="text-left">Real</td><td class="text-right">${formatPeso(c4d.cif_real_imp)}</td></tr><tr><td class="text-left">Estandar</td><td class="text-right">${formatPeso(c4d.cif_std_imp)}</td></tr><tr class="${getCondClass(c4d.cif_desv_imp)}"><td class="text-left">Desviación</td><td class="text-right">${formatPeso(c4d.cif_desv_imp)}</td></tr></table></td><td style="vertical-align: top; padding: 0; border: none;"><table class="table-cedula" style="margin:0; width:100%;"><tr class="${getCondClass(c4d.cif_analisis_presupuesto_imp)}"><td class="text-left" rowspan="2">En presupuesto</td><td class="text-left">Costo Real</td><td class="text-right">${formatPeso(c4d.cif_real_imp)}</td><td rowspan="2" class="text-right ${getCondClass(c4d.cif_analisis_presupuesto_imp)}">${formatPeso(c4d.cif_analisis_presupuesto_imp)} ${getCondText(c4d.cif_analisis_presupuesto_imp)}</td></tr><tr class="${getCondClass(c4d.cif_analisis_presupuesto_imp)}"><td class="text-left">Presup. Estatico</td><td class="text-right">${formatPeso(c4d.cif_presup_estatico)}</td></tr><tr class="${getCondClass(c4d.cif_analisis_capacidad_imp)}"><td class="text-left" rowspan="2">En capacidad o volumen</td><td class="text-left">Presup. Estatico</td><td class="text-right">${formatPeso(c4d.cif_presup_estatico)}</td><td rowspan="2" class="text-right ${getCondClass(c4d.cif_analisis_capacidad_imp)}">${formatPeso(c4d.cif_analisis_capacidad_imp)} ${getCondText(c4d.cif_analisis_capacidad_imp)}</td></tr><tr class="${getCondClass(c4d.cif_analisis_capacidad_imp)}"><td class="text-left">Costo Estandar</td><td class="text-right">${formatPeso(c4d.cif_std_imp)}</td></tr><tr class="${getCondClass(c4d.cif_analisis_global)}"><td class="text-left" colspan="2">Global cargos indirectos</td><td class="text-right">${formatPeso(c4d.cif_analisis_global)}</td><td class="${getCondClass(c4d.cif_analisis_global)}">${getCondText(c4d.cif_analisis_global)}</td></tr></table></td></tr><tr class="ced-iv-sub"><td colspan="2" class="text-left">Costo Incurrido</td></tr><tr><td style="vertical-align: top; padding: 0; border: none;"><table class="table-cedula" style="margin:0; width:100%;"><tr><td class="text-left">Real</td><td class="text-right">${formatPeso(c4d.costo_incurrido_real)}</td></tr><tr><td class="text-left">Estandar</td><td class="text-right">${formatPeso(c4d.costo_incurrido_estandar)}</td></tr><tr class="${getCondClass(c4d.desviacion_total)}"><td class="text-left"><strong>DESVIACION TOTAL</strong></td><td class="text-right"><strong>${formatPeso(c4d.desviacion_total)}</strong></td></tr></table></td><td style="vertical-align: top; padding: 0; border: none;"><table class="table-cedula" style="margin:0; width:100%; height:100%;"><tr class="${getCondClass(c4d.desviacion_final_total)}"><td class="text-right" style="font-weight:bold; vertical-align: bottom;">DESVIACION TOTAL</td><td class="text-right" style="font-weight:bold; vertical-align: bottom;">${formatPeso(c4d.desviacion_final_total)} ${getCondText(c4d.desviacion_final_total)}</td></tr></table></td></tr></table></div>`;
         cedulasHTML += `<div class="table-container"><table class="table-cedula"><tr><th colspan="3" class="table-header">Ced V. Valuación de la Producción Terminada</th></tr><tr class="table-subheader"><th>Unidades Terminadas</th><th>C.U.E.</th><th>Costo de la Prod. Term.</th></tr><tr><td>${d.terminadas.toLocaleString()}</td><td>${formatPeso(costoUnitarioEstandar)}</td><td>${formatPeso(ced5.total)}</td></tr></table></div>`;
         cedulasHTML += `<div class="table-container"><table class="table-cedula"><tr><th colspan="5" class="table-header">Ced VI. Valuación del Inventario Final de Producción Terminada</th></tr><tr class="table-subheader"><th>Unidades Terminadas</th><th>Unids Vendidas</th><th>Inventario Final</th><th>C.U.E.</th><th>Costo Total de Inv. Final PT</th></tr><tr><td>${d.terminadas.toLocaleString()}</td><td>${d.vendidas.toLocaleString()}</td><td>${ced6.unidades.toLocaleString()}</td><td>${formatPeso(costoUnitarioEstandar)}</td><td>${formatPeso(ced6.total)}</td></tr></table></div>`;
-        cedulasHTML += `<div class="table-container"><table class="table-cedula"><tr><th colspan="6" class="table-header">Ced VII. Costo de Ventas y Costo de lo Vendido</th></tr><tr><td colspan="3" class="table-subheader">Ventas</td><td colspan="3" class="table-subheader">Costo de lo Vendido</td></tr><tr><th>Unidades Vendidas</th><th>PV</th><th>Ventas Totales</th><th>Unidades Vendidas</th><th>C.U.E.</th><th>Costo de Ventas</th></tr><tr><td>${d.vendidas.toLocaleString()}</td><td>${formatPeso(d.precioVenta)}</td><td>${formatPeso(er.ventas)}</td><td>${d.vendidas.toLocaleString()}</td><td>${formatPeso(costoUnitarioEstandar)}</td><td>${formatPeso(er.costoVentasStd)}</td></tr></table></div>`;
+        cedulasHTML += `<div class="table-container"><table class="table-cedula"><tr><th colspan="6" class="table-header">Ced VII. Costo de Ventas y Costo de lo Vendido</th></tr><tr><td colspan="3" class="table-subheader">Ventas</td><td colspan="3" class="table-subheader">Costo de lo Vendido</td></tr><tr><th>Unidades Vendidas</th><th>PV</th><th>Ventas Totales</th><th>Unidades Vendidas</th><th>C.U.E.</th><th>Costo de Ventas</th></tr><tr><td>${d.vendidas.toLocaleString()}</td><td>${formatPeso(d.precioVenta)}</td><td>${formatPeso(er_display.ventasNetas)}</td><td>${d.vendidas.toLocaleString()}</td><td>${formatPeso(costoUnitarioEstandar)}</td><td>${formatPeso(er_display.costoVendidoEstandar)}</td></tr></table></div>`;
         
         let edoCostosHTML = `${headerHTML('Estado de Costos de Producción y Ventas')}<div class="grid-container">`;
-        const createCostStatementHTML = (title, data) => `<div><div class="table-container"><table class="table-cedula"><tr><th colspan="2" class="table-header">${title}</th></tr><tr><td class="text-left">Materia Prima Directa Consumida</td><td class="text-right">${formatPeso(data.mpdConsumida)}</td></tr><tr><td class="text-left">Mano de Obra Directa</td><td class="text-right">${formatPeso(data.mod)}</td></tr><tr><td class="text-left">Cargos Indirectos</td><td class="text-right">${formatPeso(data.cargosIndirectos)}</td></tr><tr class="table-subheader"><td class="text-left">Costo Incurrido Real</td><td class="text-right">${formatPeso(data.costoIncurridoReal)}</td></tr><tr><td class="text-left">Desviaciones</td><td class="text-right">${formatPeso(data.desviaciones)}</td></tr><tr class="table-subheader"><td class="text-left">Costo Incurrido Estándar</td><td class="text-right">${formatPeso(data.costoIncurridoEstandar)}</td></tr><tr><td class="text-left">+ Inv. Inicial de Producción en Proceso</td><td class="text-right">${formatPeso(0)}</td></tr><tr class="table-subheader"><td class="text-left">Producción en Proceso Disponible</td><td class="text-right">${formatPeso(data.prodEnProcesoDisp)}</td></tr><tr><td class="text-left">- Inv. Final de Producción en Proceso</td><td class="text-right">${formatPeso(data.invFinalProceso)}</td></tr><tr class="table-total"><td class="text-left">COSTO DE LA PRODUCCIÓN TERMINADA</td><td class="text-right">${formatPeso(data.costoProdTerm)}</td></tr><tr><td class="text-left">+ Inv. Inicial de Producción Terminada</td><td class="text-right">${formatPeso(0)}</td></tr><tr class="table-subheader"><td class="text-left">Producción Terminada Disponible</td><td class="text-right">${formatPeso(data.prodTermDisp)}</td></tr><tr><td class="text-left">- Inv. Final de Producción Terminada</td><td class="text-right">${formatPeso(data.invFinalTerm)}</td></tr><tr class="table-total"><td class="text-left">COSTO DE LO VENDIDO ESTÁNDAR</td><td class="text-right">${formatPeso(data.costoVendidoEstandar)}</td></tr></table></div></div>`;
-        edoCostosHTML += createCostStatementHTML('MÉTODO ABSORBENTE', estadoCostos.absorbente);
-        edoCostosHTML += createCostStatementHTML('MÉTODO DIRECTO', {mpdConsumida:0, mod:0, cargosIndirectos:0, costoIncurridoReal:0, desviaciones:0, costoIncurridoEstandar:0, prodEnProcesoDisp:0, invFinalProceso:0, costoProdTerm:0, prodTermDisp:0, invFinalTerm:0, costoVendidoEstandar:0});
+        const createCostStatementHTML = (title, data) => `<div><div class="table-container"><table class="table-cedula"><tr><th colspan="2" class="table-header">${title}</th></tr>
+            <tr><td class="text-left">Materia Prima Directa Consumida</td><td class="text-right">${formatPeso(data.mpd)}</td></tr>
+            <tr><td class="text-left">Mano de Obra Directa</td><td class="text-right">${formatPeso(data.mod)}</td></tr>
+            <tr><td class="text-left">Cargos Indirectos</td><td class="text-right">${formatPeso(data.ci)}</td></tr>
+            <tr class="table-subheader"><td class="text-left">Costo Incurrido Real</td><td class="text-right">${formatPeso(data.costoIncurridoReal)}</td></tr>
+            <tr><td class="text-left">Desviaciones</td><td class="text-right">${formatPeso(data.desviaciones)}</td></tr>
+            <tr class="table-subheader"><td class="text-left">Costo Incurrido Estándar</td><td class="text-right">${formatPeso(data.costoIncurridoEstandar)}</td></tr>
+            <tr><td class="text-left">+ Inv. Inicial de Producción en Proceso</td><td class="text-right">${formatPeso(data.invInicialPP)}</td></tr>
+            <tr class="table-subheader"><td class="text-left">Producción en Proceso Disponible</td><td class="text-right">${formatPeso(data.prodProcDisp)}</td></tr>
+            <tr><td class="text-left">- Inv. Final de Producción en Proceso</td><td class="text-right">${formatPeso(data.invFinalPP)}</td></tr>
+            <tr class="table-total"><td class="text-left">COSTO DE LA PRODUCCIÓN TERMINADA</td><td class="text-right">${formatPeso(data.costoProdTerm)}</td></tr>
+            <tr><td class="text-left">+ Inv. Inicial de Producción Terminada</td><td class="text-right">${formatPeso(data.invInicialPT)}</td></tr>
+            <tr class="table-subheader"><td class="text-left">Producción Terminada Disponible</td><td class="text-right">${formatPeso(data.prodTermDisp)}</td></tr>
+            <tr><td class="text-left">- Inv. Final de Producción Terminada</td><td class="text-right">${formatPeso(data.invFinalPT)}</td></tr>
+            <tr class="table-total"><td class="text-left">COSTO DE LO VENDIDO ESTÁNDAR</td><td class="text-right">${formatPeso(data.costoVendidoEstandar)}</td></tr>
+        </table></div></div>`;
+        edoCostosHTML += createCostStatementHTML('MÉTODO ABSORBENTE', ec_absorbente_display);
+        edoCostosHTML += createCostStatementHTML('MÉTODO DIRECTO', ec_directo_display);
         edoCostosHTML += `</div>${createFirmasHTML('costos')}`;
         
-        let edoResultadosHTML = `${headerHTML('Estado de Resultados')}<div class="grid-container">`;
-        edoResultadosHTML += `<div><div class="table-container"><table class="table-cedula"><tr><th colspan="2" class="table-header">Método Absorbente</th></tr><tr><td class="text-left">Ventas Netas</td><td class="text-right">${formatPeso(er.ventas)}</td></tr><tr><td class="text-left">Costo de lo Vendido Estándar</td><td class="text-right">${formatPeso(er.costoVentasStd)}</td></tr><tr><td class="text-left">Desviaciones</td><td class="text-right">${formatPeso(window.costResults.ced4.totalDesviaciones)}</td></tr><tr class="table-subheader"><td class="text-left">Costo de lo Vendido Real</td><td class="text-right">${formatPeso(er.costoVentasReal)}</td></tr><tr class="table-total"><td class="text-left">Utilidad Bruta</td><td class="text-right">${formatPeso(er.utilidadBruta)}</td></tr><tr><td class="text-left">Gastos de Operación:</td><td class="text-right"></td></tr><tr><td class="text-left">&nbsp;&nbsp;&nbsp;Gastos de Venta</td><td class="text-right">${formatPeso(d.gastoVenta* -1)}</td></tr><tr><td class="text-left">&nbsp;&nbsp;&nbsp;Gastos de Administración</td><td class="text-right">${formatPeso(d.gastoAdmin * -1)}</td></tr><tr class="table-total"><td class="text-left">Utilidad de Operación</td><td class="text-right">${formatPeso(er.utilidadOperativa)}</td></tr></table></div></div><div></div>`;
-        edoResultadosHTML += `</div>${createFirmasHTML('resultados')}`;
+        let edoResultadosHTML = `${headerHTML('Estado de Resultados')}<div class="table-container">
+            <table class="table-cedula" style="max-width: 800px; margin: auto;">
+            <tr><th colspan="2" class="table-header">Método Absorbente</th></tr>
+            <tr><td class="text-left">Ventas Netas</td><td class="text-right">${formatPeso(er_display.ventasNetas)}</td></tr>
+            <tr><td class="text-left">Costo de lo Vendido Estándar</td><td class="text-right">${formatPeso(er_display.costoVendidoEstandar)}</td></tr>
+            <tr><td class="text-left">Desviaciones</td><td class="text-right">${formatPeso(er_display.desviaciones)}</td></tr>
+            <tr class="table-subheader"><td class="text-left">Costo de lo Vendido Real</td><td class="text-right">${formatPeso(er_display.costoVendidoReal)}</td></tr>
+            <tr class="table-total"><td class="text-left">Utilidad Bruta</td><td class="text-right">${formatPeso(er_display.utilidadBruta)}</td></tr>
+            <tr><td class="text-left">Gastos de Operación:</td><td class="text-right">${formatPeso(er_display.gastosOperacion)}</td></tr>
+            <tr><td class="text-left" style="padding-left: 30px;">Gastos de Venta</td><td class="text-right">${formatPeso(er_display.gastosVenta)}</td></tr>
+            <tr><td class="text-left" style="padding-left: 30px;">Gastos de Administración</td><td class="text-right">${formatPeso(er_display.gastosAdmin)}</td></tr>
+            <tr class="table-total"><td class="text-left">Utilidad de Operación</td><td class="text-right">${formatPeso(er_display.utilidadOperacion)}</td></tr>
+        </table></div>${createFirmasHTML('resultados')}`;
 
         document.getElementById('resultadosOutput').innerHTML = `<div id="section-cedulas" class="result-section">${cedulasHTML}</div><div id="section-edo-costos" class="result-section">${edoCostosHTML}</div><div id="section-edo-resultados" class="result-section">${edoResultadosHTML}</div>`;
     }
@@ -387,7 +385,7 @@
         if (!window.costResults) { alert('Primero debe "Calcular Resultados".'); return; }
         
         const workbook = new ExcelJS.Workbook();
-        const { inputs: d, ced2, ced3, ced5, ced6, er, costoUnitarioEstandar, estadoCostos, reportInfo, ced4_display: c4d } = window.costResults;
+        const { inputs: d, ced2, ced3, ced5, ced6, costoUnitarioEstandar, reportInfo, ced4_display: c4d, ec_directo_display, ec_absorbente_display, er_display } = window.costResults;
         
         const moneyFormat = '_("$"* #,##0.00_);_("$"* (#,##0.00);_("$"* "-"??_);_(@_)';
         const numFormat = '#,##0.00';
@@ -401,25 +399,25 @@
         const catHeaderFill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'E9ECEF' } };
         const favorableFill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'E6FFED' } };
         const desfavorableFill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFEBE6' } };
-        const titleFont = { name: 'Arial', size: 12, bold: true };
-        const boldFont = { bold: true };
+        const titleFont = { name: 'Arial', size: 12, bold: true, color: {argb: '004080'} };
+        const boldFont = { name: 'Arial', size: 10, bold: true };
+        const headerFont = { name: 'Arial', size: 14, bold: true };
         const getCondFill = (val) => val >= 0 ? desfavorableFill : favorableFill;
-        const addHeader = (sheet, title, colSpan = 10) => {
-            sheet.mergeCells(1, 1, 1, colSpan); sheet.getCell(1, 1).value = reportInfo.nombreEmpresa; sheet.getCell(1, 1).font = { size: 16, bold: true }; sheet.getCell(1, 1).alignment = centerAlign;
-            sheet.mergeCells(2, 1, 2, colSpan); sheet.getCell(2, 1).value = title; sheet.getCell(2, 1).font = { size: 14, bold: true }; sheet.getCell(2, 1).alignment = centerAlign;
+
+        const addHeader = (sheet, title, colSpan) => {
+            sheet.mergeCells(1, 1, 1, colSpan); sheet.getCell(1, 1).value = reportInfo.nombreEmpresa; sheet.getCell(1, 1).font = headerFont; sheet.getCell(1, 1).alignment = centerAlign;
+            sheet.mergeCells(2, 1, 2, colSpan); sheet.getCell(2, 1).value = title; sheet.getCell(2, 1).font = titleFont; sheet.getCell(2, 1).alignment = centerAlign;
             sheet.mergeCells(3, 1, 3, colSpan); sheet.getCell(3, 1).value = `Del 01 al ${reportInfo.diaFin} de ${reportInfo.mesFin} de ${reportInfo.anioFin}`; sheet.getCell(3, 1).alignment = centerAlign;
             return 5;
         };
 
         // --- HOJA 1: Cédulas de Costos ---
         const cedulasSheet = workbook.addWorksheet('Cédulas de Costos');
-        let cedulasCurrentRow = addHeader(cedulasSheet, 'Cédulas Operativas', 6);
-        const addTableToSheet = (config) => {
+        let cedulasCurrentRow = addHeader(cedulasSheet, 'Cédulas Operativas', 10);
+        const addSimpleTable = (config) => {
             cedulasSheet.mergeCells(cedulasCurrentRow, 1, cedulasCurrentRow, config.colSpan);
-            const titleCell = cedulasSheet.getCell(cedulasCurrentRow, 1);
-            titleCell.value = config.title; titleCell.fill = titleFill; titleCell.font = titleFont; titleCell.alignment = centerAlign;
+            cedulasSheet.getCell(cedulasCurrentRow, 1).value = config.title; cedulasSheet.getCell(cedulasCurrentRow, 1).fill = titleFill; cedulasSheet.getCell(cedulasCurrentRow, 1).font = titleFont; cedulasSheet.getCell(cedulasCurrentRow, 1).alignment = centerAlign;
             cedulasCurrentRow++;
-            
             if (config.headers) {
                 const headerRow = cedulasSheet.getRow(cedulasCurrentRow);
                 config.headers.forEach((header, index) => {
@@ -431,120 +429,102 @@
             config.data.forEach(rowData => {
                 const row = cedulasSheet.getRow(cedulasCurrentRow);
                 rowData.forEach((cellData, index) => {
-                    const cell = row.getCell(1 + index);
-                    cell.value = cellData.value;
+                    const cell = row.getCell(1 + index); cell.value = cellData.value;
                     if (cellData.numFmt) cell.numFmt = cellData.numFmt;
-                    if (cellData.fill) cell.fill = cellData.fill;
-                    cell.alignment = cellData.alignment || centerAlign;
-                    cell.font = cellData.font || null; cell.border = thinBorder;
+                    cell.alignment = cellData.alignment || centerAlign; cell.font = cellData.font || null; cell.border = thinBorder;
                 });
                 cedulasCurrentRow++;
             });
             if (config.total) {
                 const totalRow = cedulasSheet.getRow(cedulasCurrentRow);
                 cedulasSheet.mergeCells(cedulasCurrentRow, 1, cedulasCurrentRow, config.total.colSpan);
-                const totalLabelCell = totalRow.getCell(1);
-                const totalValueCell = totalRow.getCell(config.total.colSpan + 1);
+                const totalLabelCell = totalRow.getCell(1); const totalValueCell = totalRow.getCell(config.total.colSpan + 1);
                 totalLabelCell.value = config.total.text; totalValueCell.value = config.total.value; totalValueCell.numFmt = moneyFormat;
                 for (let i = 1; i <= config.colSpan + 1; i++) {
-                    const cell = totalRow.getCell(i);
-                    cell.fill = totalFill; cell.font = boldFont; cell.border = thinBorder;
+                    const cell = totalRow.getCell(i); cell.fill = totalFill; cell.font = boldFont; cell.border = thinBorder;
                 }
                 totalLabelCell.alignment = leftAlign; totalValueCell.alignment = centerAlign;
                 cedulasCurrentRow++;
             }
-            cedulasCurrentRow++;
+            cedulasCurrentRow+=2;
         };
-        addTableToSheet({ title: 'Ced I. Hoja de Costo Estándar', colSpan: 4, headers: ['Concepto', 'Req.', 'C.U.', 'Importe'], data: [[{value: 'MPD'}, {value: d.reqMPD, numFmt: numFormat}, {value: d.cuMPD, numFmt: moneyFormat}, {value: d.reqMPD * d.cuMPD, numFmt: moneyFormat}], [{value: 'MOD'}, {value: d.reqMOD, numFmt: numFormat}, {value: d.cuMOD, numFmt: moneyFormat}, {value: d.reqMOD * d.cuMOD, numFmt: moneyFormat}], [{value: 'CIV'}, {value: 1}, {value: d.cuCIV, numFmt: moneyFormat}, {value: d.cuCIV, numFmt: moneyFormat}], [{value: 'CIF'}, {value: 1}, {value: d.cuCIF, numFmt: moneyFormat}, {value: d.cuCIF, numFmt: moneyFormat}]], total: { text: 'Costo Unitario Estándar', colSpan: 3, value: costoUnitarioEstandar }});
-        addTableToSheet({ title: 'Ced II. Valuación de Producción Terminada', colSpan: 5, headers: ['Concepto', 'Req. U.', 'Req. Total', 'C.U.', 'Importe'], data: [[{value: 'MPD'}, {value: d.reqMPD, numFmt: numFormat}, {value: ced2.reqMPD, numFmt: numFormat}, {value: d.cuMPD, numFmt: moneyFormat}, {value: ced2.impMPD, numFmt: moneyFormat}], [{value: 'MOD'}, {value: d.reqMOD, numFmt: numFormat}, {value: ced2.reqMOD, numFmt: numFormat}, {value: d.cuMOD, numFmt: moneyFormat}, {value: ced2.impMOD, numFmt: moneyFormat}], [{value: 'CIV'}, {value: 1}, {value: ced2.reqCIV, numFmt: numFormat}, {value: d.cuCIV, numFmt: moneyFormat}, {value: ced2.impCIV, numFmt: moneyFormat}], [{value: 'CIF'}, {value: 1}, {value: ced2.reqCIF, numFmt: numFormat}, {value: d.cuCIF, numFmt: moneyFormat}, {value: ced2.impCIF, numFmt: moneyFormat}]], total: { text: 'Costo Total de la Producción Terminada', colSpan: 4, value: ced2.total }});
-        addTableToSheet({ title: `Ced III. Valuación de Inventario Final en Proceso`, colSpan: 5, headers: ['Concepto', 'Req. Unitarios', 'Req. Totales', 'C.U.', 'Total IFPP a CE'], data: [[{value: 'MPD'}, {value: d.reqMPD, numFmt: numFormat}, {value: ced3.reqMPD, numFmt: numFormat}, {value: d.cuMPD, numFmt: moneyFormat}, {value: ced3.impMPD, numFmt: moneyFormat}], [{value: 'MOD'}, {value: d.reqMOD, numFmt: numFormat}, {value: ced3.reqMOD, numFmt: numFormat}, {value: d.cuMOD, numFmt: moneyFormat}, {value: ced3.impMOD, numFmt: moneyFormat}], [{value: 'CIV'}, {value: 1}, {value: ced3.reqCI_eq, numFmt: numFormat}, {value: d.cuCIV, numFmt: moneyFormat}, {value: ced3.impCIV, numFmt: moneyFormat}], [{value: 'CIF'}, {value: 1}, {value: ced3.reqCI_eq, numFmt: numFormat}, {value: d.cuCIF, numFmt: moneyFormat}, {value: ced3.impCIF, numFmt: moneyFormat}]], total: { text: 'Costo Total del Inventario en Proceso', colSpan: 4, value: ced3.total }});
-        addTableToSheet({ title: 'Ced V. Valuación de la Producción Terminada', colSpan: 3, headers: ['Unidades Terminadas', 'C.U.E.', 'Costo de la Prod. Term.'], data: [[{value: d.terminadas, numFmt: '#,##0'}, {value: costoUnitarioEstandar, numFmt: moneyFormat}, {value: ced5.total, numFmt: moneyFormat}]]});
-        addTableToSheet({ title: 'Ced VI. Valuación del Inventario Final de Producción Terminada', colSpan: 5, headers: ['Unidades Terminadas', 'Unids Vendidas', 'Inventario Final', 'C.U.E.', 'Costo Total de Inv. Final PT'], data: [[{value: d.terminadas, numFmt: '#,##0'}, {value: d.vendidas, numFmt: '#,##0'}, {value: ced6.unidades, numFmt: '#,##0'}, {value: costoUnitarioEstandar, numFmt: moneyFormat}, {value: ced6.total, numFmt: moneyFormat}]]});
-        addTableToSheet({ title: 'Ced VII. Costo de Ventas y Costo de lo Vendido', colSpan: 6, headers: ['Unidades Vendidas', 'PV', 'Ventas Totales', 'Unidades Vendidas', 'C.U.E.', 'Costo de Ventas'], data: [[{value: d.vendidas, numFmt: '#,##0'}, {value: d.precioVenta, numFmt: moneyFormat}, {value: er.ventas, numFmt: moneyFormat}, {value: d.vendidas, numFmt: '#,##0'}, {value: costoUnitarioEstandar, numFmt: moneyFormat}, {value: er.costoVentasStd, numFmt: moneyFormat}]]});
-        cedulasSheet.columns.forEach(c => { c.width = 18; });
-
-        // --- HOJA 2: Cedula IV ---
-        const ced4Sheet = workbook.addWorksheet('Cedula IV Desviaciones');
-        let ced4CurrentRow = addHeader(ced4Sheet, 'Cedula IV. Informe de Desviaciones');
-        const setRowValues = (row, values, styles) => {
-            values.forEach((val, i) => {
-                const cell = row.getCell(i + 1); cell.value = val;
-                if (styles[i]) {
-                    if (styles[i].numFmt) cell.numFmt = styles[i].numFmt;
-                    if (styles[i].align) cell.alignment = styles[i].align;
-                    if (styles[i].font) cell.font = styles[i].font;
-                    if (styles[i].fill) cell.fill = styles[i].fill;
-                }
-                cell.border = thinBorder;
-            });
+        addSimpleTable({ title: 'Ced I. Hoja de Costo Estándar', colSpan: 4, headers: ['Concepto', 'Req.', 'C.U.', 'Importe'], data: [[{value: 'MPD'}, {value: d.reqMPD, numFmt: numFormat}, {value: d.cuMPD, numFmt: moneyFormat}, {value: d.reqMPD * d.cuMPD, numFmt: moneyFormat}], [{value: 'MOD'}, {value: d.reqMOD, numFmt: numFormat}, {value: d.cuMOD, numFmt: moneyFormat}, {value: d.reqMOD * d.cuMOD, numFmt: moneyFormat}], [{value: 'CIV'}, {value: d.reqMOD, numFmt: numFormat}, {value: d.cuCIV / d.reqMOD, numFmt: moneyFormat}, {value: d.cuCIV, numFmt: moneyFormat}], [{value: 'CIF'}, {value: d.reqMOD, numFmt: numFormat}, {value: d.cuCIF / d.reqMOD, numFmt: moneyFormat}, {value: d.cuCIF, numFmt: moneyFormat}]], total: { text: 'Costo Unitario Estándar', colSpan: 3, value: costoUnitarioEstandar }});
+        addSimpleTable({ title: 'Ced II. Valuación de Producción Terminada', colSpan: 5, headers: ['Concepto', 'Req. U.', 'Req. Total', 'C.U.', 'Importe'], data: [[{value: 'MPD'}, {value: d.reqMPD, numFmt: numFormat}, {value: ced2.reqMPD, numFmt: numFormat}, {value: d.cuMPD, numFmt: moneyFormat}, {value: ced2.impMPD, numFmt: moneyFormat}], [{value: 'MOD'}, {value: d.reqMOD, numFmt: numFormat}, {value: ced2.reqMOD, numFmt: numFormat}, {value: d.cuMOD, numFmt: moneyFormat}, {value: ced2.impMOD, numFmt: moneyFormat}], [{value: 'CIV'}, {value: d.reqMOD, numFmt: numFormat}, {value: ced2.reqCIV, numFmt: numFormat}, {value: d.cuCIV/d.reqMOD, numFmt: moneyFormat}, {value: ced2.impCIV, numFmt: moneyFormat}], [{value: 'CIF'}, {value: d.reqMOD, numFmt: numFormat}, {value: ced2.reqCIF, numFmt: numFormat}, {value: d.cuCIF/d.reqMOD, numFmt: moneyFormat}, {value: ced2.impCIF, numFmt: moneyFormat}]], total: { text: 'Costo Total de la Producción Terminada', colSpan: 4, value: ced2.total }});
+        addSimpleTable({ title: `Ced III. Valuación de Inventario Final en Proceso`, colSpan: 5, headers: ['Concepto', 'Req. Unitarios', 'Req. Totales', 'C.U.', 'Total IFPP a CE'], data: [[{value: 'MPD'}, {value: d.reqMPD, numFmt: numFormat}, {value: ced3.reqMPD, numFmt: numFormat}, {value: d.cuMPD, numFmt: moneyFormat}, {value: ced3.impMPD, numFmt: moneyFormat}], [{value: 'MOD'}, {value: d.reqMOD, numFmt: numFormat}, {value: ced3.reqMOD, numFmt: numFormat}, {value: d.cuMOD, numFmt: moneyFormat}, {value: ced3.impMOD, numFmt: moneyFormat}], [{value: 'CIV'}, {value: d.reqMOD, numFmt: numFormat}, {value: ced3.reqCI_eq, numFmt: numFormat}, {value: d.cuCIV/d.reqMOD, numFmt: moneyFormat}, {value: ced3.impCIV, numFmt: moneyFormat}], [{value: 'CIF'}, {value: d.reqMOD, numFmt: numFormat}, {value: ced3.reqCI_eq, numFmt: numFormat}, {value: d.cuCIF/d.reqMOD, numFmt: moneyFormat}, {value: ced3.impCIF, numFmt: moneyFormat}]], total: { text: 'Costo Total del Inventario en Proceso', colSpan: 4, value: ced3.total }});
+        
+        // --- INICIO EXCEL CEDULA IV ---
+        cedulasSheet.mergeCells(cedulasCurrentRow, 1, cedulasCurrentRow, 10); cedulasSheet.getCell(cedulasCurrentRow, 1).value = 'Ced IV. Informe de desviaciones'; cedulasSheet.getCell(cedulasCurrentRow, 1).fill = titleFill; cedulasSheet.getCell(cedulasCurrentRow, 1).font = titleFont; cedulasSheet.getCell(cedulasCurrentRow, 1).alignment = centerAlign; cedulasCurrentRow++;
+        const setCed4Row = (row, values, styles) => {
+            values.forEach((val, i) => { const cell = row.getCell(i + 1); cell.value = val; if (styles[i]) { Object.assign(cell, styles[i]); } cell.border = thinBorder; });
         };
-        ced4Sheet.mergeCells(ced4CurrentRow, 1, ced4CurrentRow, 10); ced4Sheet.getCell(ced4CurrentRow, 1).value = 'Materia Prima'; ced4Sheet.getCell(ced4CurrentRow, 1).fill = catHeaderFill; ced4Sheet.getCell(ced4CurrentRow, 1).font = boldFont; ced4CurrentRow++;
-        let row = ced4Sheet.getRow(ced4CurrentRow); setRowValues(row, ['', 'Unidades', 'C.U.', 'Importe', '', 'En precio', '', '', c4d.mp_analisis_precio_imp, getCondText(c4d.mp_analisis_precio_imp)], [{}, {align: centerAlign, font: boldFont, fill: subHeaderFill}, {align: centerAlign, font: boldFont, fill: subHeaderFill}, {align: centerAlign, font: boldFont, fill: subHeaderFill}, {}, {font: boldFont}, {}, {}, {numFmt: moneyFormat, align: rightAlign, fill: getCondFill(c4d.mp_analisis_precio_imp)}, {fill: getCondFill(c4d.mp_analisis_precio_imp)}]); ced4Sheet.mergeCells(row.number, 6, row.number, 8); ced4CurrentRow++;
-        row = ced4Sheet.getRow(ced4CurrentRow); setRowValues(row, ['Real', c4d.mp_real_un, c4d.mp_real_cu, c4d.mp_real_imp, '', 'En cantidad', '', '', c4d.mp_analisis_cant_imp, getCondText(c4d.mp_analisis_cant_imp)], [{}, {numFmt: numFormat, align: rightAlign}, {numFmt: moneyFormat, align: rightAlign}, {numFmt: moneyFormat, align: rightAlign}, {}, {font: boldFont}, {}, {}, {numFmt: moneyFormat, align: rightAlign, fill: getCondFill(c4d.mp_analisis_cant_imp)}, {fill: getCondFill(c4d.mp_analisis_cant_imp)}]); ced4Sheet.mergeCells(row.number, 6, row.number, 8); ced4CurrentRow++;
-        row = ced4Sheet.getRow(ced4CurrentRow); setRowValues(row, ['Estandar', c4d.mp_std_un, c4d.mp_std_cu, c4d.mp_std_imp, '', '', '', '', c4d.mp_analisis_total, getCondText(c4d.mp_analisis_total)], [{}, {numFmt: numFormat, align: rightAlign}, {numFmt: moneyFormat, align: rightAlign}, {numFmt: moneyFormat, align: rightAlign}, {}, {}, {}, {}, {numFmt: moneyFormat, align: rightAlign, fill: getCondFill(c4d.mp_analisis_total)}, {fill: getCondFill(c4d.mp_analisis_total)}]); ced4Sheet.mergeCells(row.number, 6, row.number, 8); ced4CurrentRow++;
-        row = ced4Sheet.getRow(ced4CurrentRow); setRowValues(row, ['Desviación', c4d.mp_desv_un, c4d.mp_desv_cu, c4d.mp_desv_imp], [{fill: getCondFill(c4d.mp_desv_imp)}, {numFmt: numFormat, align: rightAlign, fill: getCondFill(c4d.mp_desv_imp)}, {numFmt: moneyFormat, align: rightAlign, fill: getCondFill(c4d.mp_desv_imp)}, {numFmt: moneyFormat, align: rightAlign, fill: getCondFill(c4d.mp_desv_imp)}]); ced4CurrentRow+=2;
-        // ... (resto de cedula IV)
-        ced4Sheet.columns.forEach((c,i) => { c.width = (i === 0 || i === 5) ? 20 : 15;});
+        const createCed4Section = (title, data) => {
+            cedulasSheet.mergeCells(cedulasCurrentRow, 1, cedulasCurrentRow, 10); cedulasSheet.getCell(cedulasCurrentRow, 1).value = title; cedulasSheet.getCell(cedulasCurrentRow, 1).fill = catHeaderFill; cedulasSheet.getCell(cedulasCurrentRow, 1).font = boldFont; cedulasCurrentRow++;
+            let r1 = cedulasSheet.getRow(cedulasCurrentRow); setCed4Row(r1, [ 'Real', data.real_un, data.real_cu, data.real_imp, '', data.analisis1_title, '', '', data.analisis1_imp, getCondText(data.analisis1_imp)], [{align:leftAlign}, {numFmt: numFormat, align: rightAlign}, {numFmt: moneyFormat, align: rightAlign}, {numFmt: moneyFormat, align: rightAlign}, {}, {align: leftAlign},{},{}, {numFmt: moneyFormat, align: rightAlign, fill: getCondFill(data.analisis1_imp)}, {fill: getCondFill(data.analisis1_imp), align: centerAlign, font: boldFont}]); cedulasSheet.mergeCells(r1.number, 7, r1.number, 8); cedulasCurrentRow++;
+            let r2 = cedulasSheet.getRow(cedulasCurrentRow); setCed4Row(r2, [ 'Estandar', data.std_un, data.std_cu, data.std_imp, '', data.analisis2_title, '', '', data.analisis2_imp, getCondText(data.analisis2_imp)], [{align:leftAlign}, {numFmt: numFormat, align: rightAlign}, {numFmt: moneyFormat, align: rightAlign}, {numFmt: moneyFormat, align: rightAlign}, {}, {align: leftAlign},{},{}, {numFmt: moneyFormat, align: rightAlign, fill: getCondFill(data.analisis2_imp)}, {fill: getCondFill(data.analisis2_imp), align: centerAlign, font: boldFont}]); cedulasSheet.mergeCells(r2.number, 7, r2.number, 8); cedulasCurrentRow++;
+            let r3 = cedulasSheet.getRow(cedulasCurrentRow); setCed4Row(r3, [ 'Desviación', data.desv_un, data.desv_cu, data.desv_imp, '', '', '', '', data.analisis_total, getCondText(data.analisis_total)], [{align:leftAlign, font:boldFont, fill: getCondFill(data.desv_imp)}, {numFmt: numFormat, align: rightAlign, font:boldFont, fill: getCondFill(data.desv_imp)}, {numFmt: moneyFormat, align: rightAlign, font:boldFont, fill: getCondFill(data.desv_imp)}, {numFmt: moneyFormat, align: rightAlign, font:boldFont, fill: getCondFill(data.desv_imp)}, {}, {},{},{}, {numFmt: moneyFormat, align: rightAlign, fill: getCondFill(data.analisis_total)}, {fill: getCondFill(data.analisis_total), align: centerAlign, font: boldFont}]); cedulasSheet.mergeCells(r3.number, 6, r3.number, 8); cedulasCurrentRow+=2;
+        };
+        createCed4Section('Materia Prima', { real_un: c4d.mp_real_un, real_cu: c4d.mp_real_cu, real_imp: c4d.mp_real_imp, std_un: c4d.mp_std_un, std_cu: c4d.mp_std_cu, std_imp: c4d.mp_std_imp, desv_un: c4d.mp_desv_un, desv_cu: c4d.mp_desv_cu, desv_imp: c4d.mp_desv_imp, analisis1_title: 'En precio', analisis1_imp: c4d.mp_analisis_precio_imp, analisis2_title: 'En cantidad', analisis2_imp: c4d.mp_analisis_cant_imp, analisis_total: c4d.mp_analisis_total });
+        createCed4Section('Mano de Obra', { real_un: c4d.mo_real_un, real_cu: c4d.mo_real_cu, real_imp: c4d.mo_real_imp, std_un: c4d.mo_std_un, std_cu: c4d.mo_std_cu, std_imp: c4d.mo_std_imp, desv_un: c4d.mo_desv_un, desv_cu: c4d.mo_desv_cu, desv_imp: c4d.mo_desv_imp, analisis1_title: 'Cuota', analisis1_imp: c4d.mo_analisis_cuota_imp, analisis2_title: 'Eficiencia', analisis2_imp: c4d.mo_analisis_eficiencia_imp, analisis_total: c4d.mo_analisis_total });
+        createCed4Section('Cargos Indirectos Variables', { real_un: c4d.civ_real_un, real_cu: c4d.civ_real_cu, real_imp: c4d.civ_real_imp, std_un: c4d.civ_std_un, std_cu: c4d.civ_std_cu, std_imp: c4d.civ_std_imp, desv_un: c4d.civ_desv_un, desv_cu: c4d.civ_desv_cu, desv_imp: c4d.civ_desv_imp, analisis1_title: 'Cuota', analisis1_imp: c4d.civ_analisis_cuota_imp, analisis2_title: 'Eficiencia', analisis2_imp: c4d.civ_analisis_eficiencia_imp, analisis_total: c4d.civ_analisis_total });
+        // --- FIN EXCEL CEDULA IV ---
+        addSimpleTable({ title: 'Ced V. Valuación de la Producción Terminada', colSpan: 3, headers: ['Unidades Terminadas', 'C.U.E.', 'Costo de la Prod. Term.'], data: [[{value: d.terminadas, numFmt: '#,##0'}, {value: costoUnitarioEstandar, numFmt: moneyFormat}, {value: ced5.total, numFmt: moneyFormat}]]});
+        addSimpleTable({ title: 'Ced VI. Valuación del Inventario Final de Producción Terminada', colSpan: 5, headers: ['Unidades Terminadas', 'Unids Vendidas', 'Inventario Final', 'C.U.E.', 'Costo Total de Inv. Final PT'], data: [[{value: d.terminadas, numFmt: '#,##0'}, {value: d.vendidas, numFmt: '#,##0'}, {value: ced6.unidades, numFmt: '#,##0'}, {value: costoUnitarioEstandar, numFmt: moneyFormat}, {value: ced6.total, numFmt: moneyFormat}]]});
+        addSimpleTable({ title: 'Ced VII. Costo de Ventas y Costo de lo Vendido', colSpan: 6, headers: ['Unidades Vendidas', 'PV', 'Ventas Totales', 'Unidades Vendidas', 'C.U.E.', 'Costo de Ventas'], data: [[{value: d.vendidas, numFmt: '#,##0'}, {value: d.precioVenta, numFmt: moneyFormat}, {value: er_display.ventasNetas, numFmt: moneyFormat}, {value: d.vendidas, numFmt: '#,##0'}, {value: costoUnitarioEstandar, numFmt: moneyFormat}, {value: er_display.costoVendidoEstandar, numFmt: moneyFormat}]]});
+        cedulasSheet.columns.forEach((c,i) => { c.width = (i===0 || i===5) ? 20 : 15; });
 
-        // --- HOJA 3: Estados Financieros ---
-        const estadosSheet = workbook.addWorksheet('Estados Financieros');
-        let efCurrentRow = addHeader(estadosSheet, 'Estados Financieros');
-        estadosSheet.mergeCells(efCurrentRow, 1, efCurrentRow, 6); estadosSheet.getCell(efCurrentRow, 1).value = 'Estado de Costos de Producción y Ventas'; estadosSheet.getCell(efCurrentRow, 1).fill = titleFill; estadosSheet.getCell(efCurrentRow, 1).font = titleFont; estadosSheet.getCell(efCurrentRow, 1).alignment = centerAlign; efCurrentRow++;
+        // --- HOJA 2: Estado de Costos ---
+        const edoCostosSheet = workbook.addWorksheet('Estado de Costos');
+        let edoCostosCurrentRow = addHeader(edoCostosSheet, 'Estado de Costos de Producción y Ventas', 6);
         const addCostStatement = (sheet, title, data, startCol, startRow) => {
             let csCurrentRow = startRow;
             sheet.mergeCells(csCurrentRow, startCol, csCurrentRow, startCol + 1); let titleCell = sheet.getCell(csCurrentRow, startCol);
-            titleCell.value = title; titleCell.fill = subHeaderFill; titleCell.font = boldFont; titleCell.alignment = centerAlign; titleCell.border = thinBorder; sheet.getCell(csCurrentRow, startCol + 1).border = thinBorder; csCurrentRow++;
+            titleCell.value = title; titleCell.fill = titleFill; titleCell.font = titleFont; titleCell.alignment = centerAlign; titleCell.border = thinBorder; sheet.getCell(csCurrentRow, startCol + 1).border = thinBorder; csCurrentRow++;
             const dataMap = [
-                { label: 'Materia Prima Directa Consumida', value: data.mpdConsumida }, { label: 'Mano de Obra Directa', value: data.mod },
-                { label: 'Cargos Indirectos', value: data.cargosIndirectos },
-                { label: 'Costo Incurrido Real', value: data.costoIncurridoReal, isSub: true },
-                { label: 'Desviaciones', value: data.desviaciones },
-                { label: 'Costo Incurrido Estándar', value: data.costoIncurridoEstandar, isSub: true },
-                { label: '+ Inv. Inicial de Producción en Proceso', value: 0 },
-                { label: 'Producción en Proceso Disponible', value: data.prodEnProcesoDisp, isSub: true },
-                { label: '- Inv. Final de Producción en Proceso', value: data.invFinalProceso > 0 ? -data.invFinalProceso : data.invFinalProceso },
-                { label: 'COSTO DE LA PRODUCCIÓN TERMINADA', value: data.costoProdTerm, isTotal: true },
-                { label: '+ Inv. Inicial de Producción Terminada', value: 0 },
-                { label: 'Producción Terminada Disponible', value: data.prodTermDisp, isSub: true },
-                { label: '- Inv. Final de Producción Terminada', value: data.invFinalTerm > 0 ? -data.invFinalTerm : data.invFinalTerm },
-                { label: 'COSTO DE LO VENDIDO ESTÁNDAR', value: data.costoVendidoEstandar, isTotal: true },
+                { label: 'Materia Prima Directa Consumida', value: data.mpd }, { label: 'Mano de Obra Directa', value: data.mod },
+                { label: 'Cargos Indirectos', value: data.ci }, { label: 'Costo Incurrido Real', value: data.costoIncurridoReal, isSub: true }, 
+                { label: 'Desviaciones', value: data.desviaciones }, { label: 'Costo Incurrido Estándar', value: data.costoIncurridoEstandar, isSub: true }, 
+                { label: '+ Inv. Inicial de Producción en Proceso', value: data.invInicialPP }, { label: 'Producción en Proceso Disponible', value: data.prodProcDisp, isSub: true }, 
+                { label: '- Inv. Final de Producción en Proceso', value: data.invFinalPP }, { label: 'COSTO DE LA PRODUCCIÓN TERMINADA', value: data.costoProdTerm, isTotal: true }, 
+                { label: '+ Inv. Inicial de Producción Terminada', value: data.invInicialPT }, { label: 'Producción Terminada Disponible', value: data.prodTermDisp, isSub: true }, 
+                { label: '- Inv. Final de Producción Terminada', value: data.invFinalPT }, { label: 'COSTO DE LO VENDIDO ESTÁNDAR', value: data.costoVendidoEstandar, isTotal: true },
             ];
             dataMap.forEach(item => {
                 let row = sheet.getRow(csCurrentRow); let labelCell = row.getCell(startCol); let valueCell = row.getCell(startCol + 1);
                 labelCell.value = item.label; valueCell.value = item.value;
                 valueCell.numFmt = moneyFormat; labelCell.alignment = leftAlign; valueCell.alignment = rightAlign;
-                if (item.isSub) { labelCell.fill = subHeaderFill; valueCell.fill = subHeaderFill; }
+                if (item.isSub) { labelCell.fill = subHeaderFill; valueCell.fill = subHeaderFill; labelCell.font = boldFont; valueCell.font = boldFont; }
                 if (item.isTotal) { labelCell.fill = totalFill; valueCell.fill = totalFill; labelCell.font = boldFont; valueCell.font = boldFont; }
-                labelCell.border = thinBorder; valueCell.border = thinBorder;
-                csCurrentRow++;
+                labelCell.border = thinBorder; valueCell.border = thinBorder; csCurrentRow++;
             });
             return csCurrentRow;
         };
-        let endRowCostos = addCostStatement(estadosSheet, 'MÉTODO ABSORBENTE', estadoCostos.absorbente, 1, efCurrentRow);
-        efCurrentRow = endRowCostos + 2;
-
-        estadosSheet.mergeCells(efCurrentRow, 1, efCurrentRow, 2); estadosSheet.getCell(efCurrentRow, 1).value = 'Estado de Resultados'; estadosSheet.getCell(efCurrentRow, 1).fill = titleFill; estadosSheet.getCell(efCurrentRow, 1).font = titleFont; estadosSheet.getCell(efCurrentRow, 1).alignment = centerAlign; efCurrentRow++;
+        let endRowCostos = addCostStatement(edoCostosSheet, 'MÉTODO ABSORBENTE', ec_absorbente_display, 1, edoCostosCurrentRow);
+        addCostStatement(edoCostosSheet, 'MÉTODO DIRECTO', ec_directo_display, 4, edoCostosCurrentRow);
+        edoCostosSheet.columns.forEach((c,i) => { c.width = (i===0 || i===3) ? 35 : 20; });
+        
+        // --- HOJA 3: Estado de Resultados ---
+        const edoResultadosSheet = workbook.addWorksheet('Estado de Resultados');
+        let efCurrentRow = addHeader(edoResultadosSheet, 'Estado de Resultados', 2);
+        efCurrentRow++;
+        edoResultadosSheet.mergeCells(efCurrentRow, 1, efCurrentRow, 2); edoResultadosSheet.getCell(efCurrentRow, 1).value = 'Método Absorbente'; edoResultadosSheet.getCell(efCurrentRow, 1).fill = titleFill; edoResultadosSheet.getCell(efCurrentRow, 1).font = titleFont; edoResultadosSheet.getCell(efCurrentRow, 1).alignment = centerAlign;
+        efCurrentRow++;
         const erDataMap = [
-            { label: 'Ventas Netas', value: er.ventas },
-            { label: 'Costo de lo Vendido Estándar', value: er.costoVentasStd > 0 ? -er.costoVentasStd : er.costoVentasStd },
-            { label: 'Desviaciones', value: er.totalDesviaciones > 0 ? -er.totalDesviaciones : er.totalDesviaciones },
-            { label: 'Costo de lo Vendido Real', value: er.costoVentasReal > 0 ? -er.costoVentasReal : er.costoVentasReal, isSub: true },
-            { label: 'Utilidad Bruta', value: er.utilidadBruta, isTotal: true },
-            { label: 'Gastos de Operación:', value: null },
-            { label: '   Gastos de Venta', value: d.gastoVenta > 0 ? -d.gastoVenta : d.gastoVenta },
-            { label: '   Gastos de Administración', value: d.gastoAdmin > 0 ? -d.gastoAdmin : d.gastoAdmin },
-            { label: 'Utilidad de Operación', value: er.utilidadOperativa, isTotal: true },
+            { label: 'Ventas Netas', value: er_display.ventasNetas, indent: 0 }, { label: 'Costo de lo Vendido Estándar', value: er_display.costoVendidoEstandar, indent: 0 },
+            { label: 'Desviaciones', value: er_display.desviaciones, indent: 0 }, { label: 'Costo de lo Vendido Real', value: er_display.costoVendidoReal, indent: 0, isSub: true },
+            { label: 'Utilidad Bruta', value: er_display.utilidadBruta, indent: 0, isTotal: true }, { label: 'Gastos de Operación:', value: er_display.gastosOperacion, indent: 0 },
+            { label: 'Gastos de Venta', value: er_display.gastosVenta, indent: 1 }, { label: 'Gastos de Administración', value: er_display.gastosAdmin, indent: 1 },
+            { label: 'Utilidad de Operación', value: er_display.utilidadOperacion, indent: 0, isTotal: true },
         ];
         erDataMap.forEach(item => {
-            let row = estadosSheet.getRow(efCurrentRow); let labelCell = row.getCell(1); let valueCell = row.getCell(2);
+            let row = edoResultadosSheet.getRow(efCurrentRow); let labelCell = row.getCell(1); let valueCell = row.getCell(2);
             labelCell.value = item.label; valueCell.value = item.value;
-            valueCell.numFmt = moneyFormat; labelCell.alignment = leftAlign; valueCell.alignment = rightAlign;
-            if (item.isSub) { labelCell.fill = subHeaderFill; valueCell.fill = subHeaderFill; }
+            valueCell.numFmt = moneyFormat; labelCell.alignment = {...leftAlign, indent: item.indent}; valueCell.alignment = rightAlign;
+            if (item.isSub) { labelCell.fill = subHeaderFill; valueCell.fill = subHeaderFill; labelCell.font = boldFont; valueCell.font = boldFont;}
             if (item.isTotal) { labelCell.fill = totalFill; valueCell.fill = totalFill; labelCell.font = boldFont; valueCell.font = boldFont; }
             labelCell.border = thinBorder; valueCell.border = thinBorder;
             efCurrentRow++;
         });
-        estadosSheet.columns.forEach(c => { c.width = 25; });
+        edoResultadosSheet.columns.forEach(c => { c.width = 35; });
         
         const buffer = await workbook.xlsx.writeBuffer();
         saveAs(new Blob([buffer]), 'Reporte_Costos_Completo.xlsx');
