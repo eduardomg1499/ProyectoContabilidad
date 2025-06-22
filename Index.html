@@ -7,6 +7,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <style>
     :root {
       --primary-color: #0052cc;
@@ -79,6 +81,9 @@
     .actions { grid-column: 1 / -1; text-align: right; margin-top: 10px; }
     button.action { padding: 12px 24px; background: #c92a2a; color: white; border: none; border-radius: 8px; cursor: pointer; margin-left: 8px; font-size: 16px; font-weight: 600; }
     button.action:hover { background: #a61e1e; }
+    .export-buttons { text-align:right; margin-top: 20px; }
+    .export-buttons .action { background-color: #1971c2; }
+    .export-buttons .action:hover { background-color: #1864ab; }
     .results-nav { text-align: center; margin-bottom: 25px; border-bottom: 1px solid var(--border-color); padding-bottom: 15px;}
     .results-nav button {
         background: transparent;
@@ -117,6 +122,7 @@
     .firma-input-group input { width: 150px; }
     .firma-btn { padding: 6px 12px; font-size: 12px; }
     .no-border-table td { border: none !important; }
+    .pdf-page-break { page-break-before: always; }
     @media (max-width: 768px) {
       .grid-container { grid-template-columns: 1fr; }
       h1 { font-size: 22px; }
@@ -190,7 +196,10 @@
         <button id="btn-edo-resultados" onclick="showResultSection('edo-resultados')">Estado de Resultados</button>
       </div>
       <div id="resultadosOutput"></div>
-      <div style="text-align:right; margin-top: 20px;"><button class="action" onclick="descargarExcel()">Exportar a Excel</button></div>
+      <div class="export-buttons">
+          <button class="action" onclick="descargarPDF()">Exportar a PDF</button>
+          <button class="action" onclick="descargarExcel()">Exportar a Excel</button>
+      </div>
     </div>
   </div>
 
@@ -272,16 +281,13 @@
       
       const costoStd_MPD_unit = d.reqMPD * d.cuMPD;
       const costoStd_MOD_unit = d.reqMOD * d.cuMOD;
-      // Corregir cálculo de costo estándar unitario
-      const costoStd_CIV_unit = d.reqMOD * d.cuCIV;
-      const costoStd_CIF_unit = d.reqMOD * d.cuCIF;
-      results.costoUnitarioEstandar = costoStd_MPD_unit + costoStd_MOD_unit + costoStd_CIV_unit + costoStd_CIF_unit;
+      results.costoUnitarioEstandar = costoStd_MPD_unit + costoStd_MOD_unit + d.cuCIV + d.cuCIF;
       
       results.ced2 = { 
           reqMPD: d.terminadas * d.reqMPD, impMPD: d.terminadas * costoStd_MPD_unit, 
           reqMOD: d.terminadas * d.reqMOD, impMOD: d.terminadas * costoStd_MOD_unit, 
-          reqCIV: d.terminadas * d.reqMOD, impCIV: d.terminadas * costoStd_CIV_unit, 
-          reqCIF: d.terminadas * d.reqMOD, impCIF: d.terminadas * costoStd_CIF_unit 
+          reqCIV: d.terminadas * d.reqMOD, impCIV: d.terminadas * d.cuCIV, 
+          reqCIF: d.terminadas * d.reqMOD, impCIF: d.terminadas * d.cuCIF 
       };
       results.ced2.total = results.ced2.impMPD + results.ced2.impMOD + results.ced2.impCIV + results.ced2.impCIF;
       
@@ -290,8 +296,8 @@
           reqMPD: d.unidadesP * (d.avanceMPD / 100) * d.reqMPD, impMPD: d.unidadesP * (d.avanceMPD / 100) * costoStd_MPD_unit, 
           reqMOD: d.unidadesP * (d.avanceMOD / 100) * d.reqMOD, impMOD: d.unidadesP * (d.avanceMOD / 100) * costoStd_MOD_unit, 
           reqCI_eq: avanceCI_eq * d.reqMOD, 
-          impCIV: avanceCI_eq * costoStd_CIV_unit, 
-          impCIF: avanceCI_eq * costoStd_CIF_unit
+          impCIV: avanceCI_eq * d.cuCIV, 
+          impCIF: avanceCI_eq * d.cuCIF
       };
       results.ced3.total = results.ced3.impMPD + results.ced3.impMOD + results.ced3.impCIV + results.ced3.impCIF;
       
@@ -333,10 +339,10 @@
     // --- Generador de Vistas HTML ---
     function generarHTMLResultados() {
         const { inputs: d, ced2, ced3, ced5, ced6, er_display, costoUnitarioEstandar, reportInfo, ced4_display: c4d, ec_directo_display, ec_absorbente_display } = window.costResults;
-        const headerHTML = (title) => `<div><h3>${reportInfo.nombreEmpresa}</h3><h3>${title}</h3><h3>Del 01 al ${reportInfo.diaFin} de ${reportInfo.mesFin} de ${reportInfo.anioFin}</h3></div>`;
-        const createFirmasHTML = (section) => `<fieldset><legend>Firmas de Autorización</legend><div class="firmas-container"><div class="firma"><div id="firma-nombre-elaboro-${section}" class="firma-linea firma-nombre-elaboro"></div><p>Elaboró</p><div class="firma-input-group"><input type="text" id="firma-input-elaboro-${section}" placeholder="Nombre..."><button class="action firma-btn" onclick="firmarDocumento('elaboro', '${section}')">Firmar</button></div></div><div class="firma"><div id="firma-nombre-superviso-${section}" class="firma-linea firma-nombre-superviso"></div><p>Supervisó</p><div class="firma-input-group"><input type="text" id="firma-input-superviso-${section}" placeholder="Nombre..."><button class="action firma-btn" onclick="firmarDocumento('superviso', '${section}')">Firmar</button></div></div></div></fieldset>`;
+        const headerHTML = (title) => `<div class="report-header"><h3>${reportInfo.nombreEmpresa}</h3><h3>${title}</h3><h3>Del 01 al ${reportInfo.diaFin} de ${reportInfo.mesFin} de ${reportInfo.anioFin}</h3></div>`;
+        const createFirmasHTML = (section) => `<fieldset><legend>Firmas de Autorización</legend><div class="firmas-container"><div class="firma"><div class="firma-linea firma-nombre-elaboro"></div><p>Elaboró</p><div class="firma-input-group"><input type="text" id="firma-input-elaboro-${section}" placeholder="Nombre..."><button class="action firma-btn" onclick="firmarDocumento('elaboro', '${section}')">Firmar</button></div></div><div class="firma"><div class="firma-linea firma-nombre-superviso"></div><p>Supervisó</p><div class="firma-input-group"><input type="text" id="firma-input-superviso-${section}" placeholder="Nombre..."><button class="action firma-btn" onclick="firmarDocumento('superviso', '${section}')">Firmar</button></div></div></div></fieldset>`;
         
-        let cedulasHTML = `<div class="table-container"><table class="table-cedula"><tr><th colspan="4" class="table-header">Ced I. Hoja de Costo Estándar</th></tr><tr class="table-subheader"><th>Concepto</th><th>Req.</th><th>C.U.</th><th>Importe</th></tr><tr><td>MPD</td><td>${d.reqMPD}</td><td>${formatPeso(d.cuMPD)}</td><td>${formatPeso(d.reqMPD * d.cuMPD)}</td></tr><tr><td>MOD</td><td>${d.reqMOD}</td><td>${formatPeso(d.cuMOD)}</td><td>${formatPeso(d.reqMOD * d.cuMOD)}</td></tr><tr><td>CIV</td><td>${d.reqMOD}</td><td>${formatPeso(d.cuCIV)}</td><td>${formatPeso(d.reqMOD * d.cuCIV)}</td></tr><tr><td>CIF</td><td>${d.reqMOD}</td><td>${formatPeso(d.cuCIF)}</td><td>${formatPeso(d.reqMOD * d.cuCIF)}</td></tr><tr class="table-total"><td colspan="3">Costo Unitario Estándar</td><td>${formatPeso(costoUnitarioEstandar)}</td></tr></table></div>`;
+        let cedulasHTML = `${headerHTML('Cédulas Operativas')}<div class="table-container"><table class="table-cedula"><tr><th colspan="4" class="table-header">Ced I. Hoja de Costo Estándar</th></tr><tr class="table-subheader"><th>Concepto</th><th>Req.</th><th>C.U.</th><th>Importe</th></tr><tr><td>MPD</td><td>${d.reqMPD}</td><td>${formatPeso(d.cuMPD)}</td><td>${formatPeso(d.reqMPD * d.cuMPD)}</td></tr><tr><td>MOD</td><td>${d.reqMOD}</td><td>${formatPeso(d.cuMOD)}</td><td>${formatPeso(d.reqMOD * d.cuMOD)}</td></tr><tr><td>CIV</td><td>${d.reqMOD}</td><td>${formatPeso(d.cuCIV)}</td><td>${formatPeso(d.reqMOD * d.cuCIV)}</td></tr><tr><td>CIF</td><td>${d.reqMOD}</td><td>${formatPeso(d.cuCIF)}</td><td>${formatPeso(d.reqMOD * d.cuCIF)}</td></tr><tr class="table-total"><td colspan="3">Costo Unitario Estándar</td><td>${formatPeso(costoUnitarioEstandar)}</td></tr></table></div>`;
         cedulasHTML += `<div class="table-container"><table class="table-cedula"><tr><th colspan="5" class="table-header">Ced II. Valuación de Producción Terminada</th></tr><tr class="table-subheader"><th>Concepto</th><th>Req. U.</th><th>Req. Total</th><th>C.U.</th><th>Importe</th></tr><tr><td>MPD</td><td>${d.reqMPD}</td><td>${ced2.reqMPD.toLocaleString()}</td><td>${formatPeso(d.cuMPD)}</td><td>${formatPeso(ced2.impMPD)}</td></tr><tr><td>MOD</td><td>${d.reqMOD}</td><td>${ced2.reqMOD.toLocaleString()}</td><td>${formatPeso(d.cuMOD)}</td><td>${formatPeso(ced2.impMOD)}</td></tr><tr><td>CIV</td><td>${d.reqMOD}</td><td>${ced2.reqCIV.toLocaleString()}</td><td>${formatPeso(d.cuCIV)}</td><td>${formatPeso(ced2.impCIV)}</td></tr><tr><td>CIF</td><td>${d.reqMOD}</td><td>${ced2.reqCIF.toLocaleString()}</td><td>${formatPeso(d.cuCIF)}</td><td>${formatPeso(ced2.impCIF)}</td></tr><tr class="table-total"><td colspan="4">Costo Total de la Producción Terminada</td><td>${formatPeso(ced2.total)}</td></tr></table></div>`;
         cedulasHTML += `<div class="table-container"><table class="table-cedula"><tr><th colspan="5" class="table-header">Ced III. Valuación de Inventario Final en Proceso</th></tr><tr class="table-subheader"><th>Concepto</th><th>Req. Unitarios</th><th>Req. Totales</th><th>C.U.</th><th>Total IFPP a CE</th></tr><tr><td>MPD</td><td>${d.reqMPD}</td><td>${ced3.reqMPD.toFixed(2)}</td><td>${formatPeso(d.cuMPD)}</td><td>${formatPeso(ced3.impMPD)}</td></tr><tr><td>MOD</td><td>${d.reqMOD}</td><td>${ced3.reqMOD.toFixed(2)}</td><td>${formatPeso(d.cuMOD)}</td><td>${formatPeso(ced3.impMOD)}</td></tr><tr><td>CIV</td><td>${d.reqMOD}</td><td>${ced3.reqCI_eq.toFixed(2)}</td><td>${formatPeso(d.cuCIV)}</td><td>${formatPeso(ced3.impCIV)}</td></tr><tr><td>CIF</td><td>${d.reqMOD}</td><td>${ced3.reqCI_eq.toFixed(2)}</td><td>${formatPeso(d.cuCIF)}</td><td>${formatPeso(ced3.impCIF)}</td></tr><tr class="table-total"><td colspan="4">Costo Total del Inventario en Proceso</td><td>${formatPeso(ced3.total)}</td></tr></table></div>`;
         
@@ -383,6 +389,66 @@
         document.getElementById('resultadosOutput').innerHTML = `<div id="section-cedulas" class="result-section">${cedulasHTML}</div><div id="section-edo-costos" class="result-section">${edoCostosHTML}</div><div id="section-edo-resultados" class="result-section">${edoResultadosHTML}</div>`;
     }
 
+    // --- Generador de Archivo PDF ---
+    async function descargarPDF() {
+        if (!window.costResults) { alert('Primero debe "Calcular Resultados".'); return; }
+
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
+        
+        const addContentToPdf = async (elementId, options = {}) => {
+            const content = document.getElementById(elementId).cloneNode(true);
+            const pdfContainer = document.createElement('div');
+            pdfContainer.style.position = 'absolute';
+            pdfContainer.style.left = '-9999px';
+            pdfContainer.style.width = '1200px'; 
+            document.body.appendChild(pdfContainer);
+
+            // Ocultar elementos no deseados solo para la captura
+            content.querySelectorAll('.firma-input-group').forEach(el => el.style.display = 'none');
+            content.style.display = 'block';
+            
+            // Si no es la primera página, quitar el encabezado del reporte
+            if (!options.isFirstPage) {
+                const header = content.querySelector('.report-header');
+                if (header) header.remove();
+            }
+            pdfContainer.appendChild(content);
+
+            const canvas = await html2canvas(pdfContainer, { scale: 2, useCORS: true });
+            document.body.removeChild(pdfContainer);
+
+            const imgData = canvas.toDataURL('image/png');
+            const imgProps = pdf.getImageProperties(imgData);
+            const pdfWidth = pdf.internal.pageSize.getWidth();
+            const pageHeight = pdf.internal.pageSize.getHeight();
+            const imgRatio = imgProps.height / imgProps.width;
+            const finalWidth = pdfWidth - 20;
+            const finalHeight = finalWidth * imgRatio;
+
+            let heightLeft = finalHeight;
+            let position = 0;
+
+            if (!options.isFirstPage) pdf.addPage();
+            
+            pdf.addImage(imgData, 'PNG', 10, 10, finalWidth, finalHeight);
+            heightLeft -= (pageHeight - 20);
+
+            while (heightLeft > 0) {
+                position -= (pageHeight - 20);
+                pdf.addPage();
+                pdf.addImage(imgData, 'PNG', 10, position, finalWidth, finalHeight);
+                heightLeft -= (pageHeight - 20);
+            }
+        };
+        
+        await addContentToPdf('section-cedulas', { isFirstPage: true });
+        await addContentToPdf('section-edo-costos');
+        await addContentToPdf('section-edo-resultados');
+        
+        pdf.save(`Reporte_Costos_${window.costResults.reportInfo.nombreEmpresa}.pdf`);
+    }
+
     // --- Generador de Archivo Excel ---
     async function descargarExcel() {
         if (!window.costResults) { alert('Primero debe "Calcular Resultados".'); return; }
@@ -412,6 +478,17 @@
             sheet.mergeCells(2, 1, 2, colSpan); sheet.getCell(2, 1).value = title; sheet.getCell(2, 1).font = titleFont; sheet.getCell(2, 1).alignment = centerAlign;
             sheet.mergeCells(3, 1, 3, colSpan); sheet.getCell(3, 1).value = `Del 01 al ${reportInfo.diaFin} de ${reportInfo.mesFin} de ${reportInfo.anioFin}`; sheet.getCell(3, 1).alignment = centerAlign;
             return 5;
+        };
+        const addSignatures = (sheet, startRow, startCol, colSpan = 2) => {
+            const elaboro = reportInfo.elaboro || '_________________________'; const superviso = reportInfo.superviso || '_________________________';
+            sheet.mergeCells(startRow, startCol, startRow, startCol + colSpan - 1); sheet.mergeCells(startRow, startCol + colSpan + 1, startRow, startCol + colSpan * 2);
+            sheet.getCell(startRow, startCol).value = elaboro; sheet.getCell(startRow, startCol + colSpan + 1).value = superviso;
+            sheet.mergeCells(startRow + 1, startCol, startRow + 1, startCol + colSpan - 1); sheet.mergeCells(startRow + 1, startCol + colSpan + 1, startRow + 1, startCol + colSpan * 2);
+            sheet.getCell(startRow + 1, startCol).value = "Elaboró"; sheet.getCell(startRow + 1, startCol + colSpan + 1).value = "Supervisó";
+            for(let i=0; i<2; i++){
+                const row = sheet.getRow(startRow + i);
+                row.getCell(startCol).alignment = { ...centerAlign, vertical: 'bottom' }; row.getCell(startCol + colSpan + 1).alignment = { ...centerAlign, vertical: 'bottom' };
+            }
         };
 
         // --- HOJA 1: Cédulas de Costos ---
@@ -460,15 +537,14 @@
         const setCed4Row = (row, values, styles) => { values.forEach((val, i) => { const cell = row.getCell(i + 1); cell.value = val; if (styles[i]) { Object.assign(cell, styles[i]); } cell.border = thinBorder; });};
         const createCed4Section = (title, data) => {
             cedulasSheet.mergeCells(cedulasCurrentRow, 1, cedulasCurrentRow, 10); cedulasSheet.getCell(cedulasCurrentRow, 1).value = title; cedulasSheet.getCell(cedulasCurrentRow, 1).fill = catHeaderFill; cedulasSheet.getCell(cedulasCurrentRow, 1).font = boldFont; cedulasCurrentRow++;
-            let r1 = cedulasSheet.getRow(cedulasCurrentRow); setCed4Row(r1, [ 'Real', data.real_un, data.real_cu, data.real_imp, '', data.analisis1_title, '', '', data.analisis1_imp, getCondText(data.analisis1_imp)], [{align:leftAlign}, {numFmt: numFormat, align: rightAlign}, {numFmt: moneyFormat, align: rightAlign}, {numFmt: moneyFormat, align: rightAlign}, {}, {align: leftAlign},{},{}, {numFmt: moneyFormat, align: rightAlign, fill: getCondFill(data.analisis1_imp)}, {fill: getCondFill(data.analisis1_imp), align: centerAlign, font: boldFont}]); cedulasSheet.mergeCells(r1.number, 7, r1.number, 8); cedulasCurrentRow++;
-            let r2 = cedulasSheet.getRow(cedulasCurrentRow); setCed4Row(r2, [ 'Estandar', data.std_un, data.std_cu, data.std_imp, '', data.analisis2_title, '', '', data.analisis2_imp, getCondText(data.analisis2_imp)], [{align:leftAlign}, {numFmt: numFormat, align: rightAlign}, {numFmt: moneyFormat, align: rightAlign}, {numFmt: moneyFormat, align: rightAlign}, {}, {align: leftAlign},{},{}, {numFmt: moneyFormat, align: rightAlign, fill: getCondFill(data.analisis2_imp)}, {fill: getCondFill(data.analisis2_imp), align: centerAlign, font: boldFont}]); cedulasSheet.mergeCells(r2.number, 7, r2.number, 8); cedulasCurrentRow++;
+            let r1 = cedulasSheet.getRow(cedulasCurrentRow); setCed4Row(r1, [ 'Real', data.real_un, data.real_cu, data.real_imp, '', data.analisis1_title, '', '', data.analisis1_imp, getCondText(data.analisis1_imp)], [{align:leftAlign}, {numFmt: numFormat, align: rightAlign}, {numFmt: moneyFormat, align: rightAlign}, {numFmt: moneyFormat, align: rightAlign}, {}, {align: leftAlign, font: boldFont},{},{}, {numFmt: moneyFormat, align: rightAlign, fill: getCondFill(data.analisis1_imp)}, {fill: getCondFill(data.analisis1_imp), align: centerAlign, font: boldFont}]); cedulasSheet.mergeCells(r1.number, 6, r1.number, 8); cedulasCurrentRow++;
+            let r2 = cedulasSheet.getRow(cedulasCurrentRow); setCed4Row(r2, [ 'Estandar', data.std_un, data.std_cu, data.std_imp, '', data.analisis2_title, '', '', data.analisis2_imp, getCondText(data.analisis2_imp)], [{align:leftAlign}, {numFmt: numFormat, align: rightAlign}, {numFmt: moneyFormat, align: rightAlign}, {numFmt: moneyFormat, align: rightAlign}, {}, {align: leftAlign, font: boldFont},{},{}, {numFmt: moneyFormat, align: rightAlign, fill: getCondFill(data.analisis2_imp)}, {fill: getCondFill(data.analisis2_imp), align: centerAlign, font: boldFont}]); cedulasSheet.mergeCells(r2.number, 6, r2.number, 8); cedulasCurrentRow++;
             let r3 = cedulasSheet.getRow(cedulasCurrentRow); setCed4Row(r3, [ 'Desviación', data.desv_un, data.desv_cu, data.desv_imp, '', '', '', '', data.analisis_total, getCondText(data.analisis_total)], [{align:leftAlign, font:boldFont, fill: getCondFill(data.desv_imp)}, {numFmt: numFormat, align: rightAlign, font:boldFont, fill: getCondFill(data.desv_imp)}, {numFmt: moneyFormat, align: rightAlign, font:boldFont, fill: getCondFill(data.desv_imp)}, {numFmt: moneyFormat, align: rightAlign, font:boldFont, fill: getCondFill(data.desv_imp)}, {}, {},{},{}, {numFmt: moneyFormat, align: rightAlign, fill: getCondFill(data.analisis_total)}, {fill: getCondFill(data.analisis_total), align: centerAlign, font: boldFont}]); cedulasSheet.mergeCells(r3.number, 6, r3.number, 8); cedulasCurrentRow+=2;
         };
         createCed4Section('Materia Prima', { real_un: c4d.mp_real_un, real_cu: c4d.mp_real_cu, real_imp: c4d.mp_real_imp, std_un: c4d.mp_std_un, std_cu: c4d.mp_std_cu, std_imp: c4d.mp_std_imp, desv_un: c4d.mp_desv_un, desv_cu: c4d.mp_desv_cu, desv_imp: c4d.mp_desv_imp, analisis1_title: 'En precio', analisis1_imp: c4d.mp_analisis_precio_imp, analisis2_title: 'En cantidad', analisis2_imp: c4d.mp_analisis_cant_imp, analisis_total: c4d.mp_analisis_total });
         createCed4Section('Mano de Obra', { real_un: c4d.mo_real_un, real_cu: c4d.mo_real_cu, real_imp: c4d.mo_real_imp, std_un: c4d.mo_std_un, std_cu: c4d.mo_std_cu, std_imp: c4d.mo_std_imp, desv_un: c4d.mo_desv_un, desv_cu: c4d.mo_desv_cu, desv_imp: c4d.mo_desv_imp, analisis1_title: 'Cuota', analisis1_imp: c4d.mo_analisis_cuota_imp, analisis2_title: 'Eficiencia', analisis2_imp: c4d.mo_analisis_eficiencia_imp, analisis_total: c4d.mo_analisis_total });
         createCed4Section('Cargos Indirectos Variables', { real_un: c4d.civ_real_un, real_cu: c4d.civ_real_cu, real_imp: c4d.civ_real_imp, std_un: c4d.civ_std_un, std_cu: c4d.civ_std_cu, std_imp: c4d.civ_std_imp, desv_un: c4d.civ_desv_un, desv_cu: c4d.civ_desv_cu, desv_imp: c4d.civ_desv_imp, analisis1_title: 'Cuota', analisis1_imp: c4d.civ_analisis_cuota_imp, analisis2_title: 'Eficiencia', analisis2_imp: c4d.civ_analisis_eficiencia_imp, analisis_total: c4d.civ_analisis_total });
-        //... Resto de Cedula IV en excel ...
-
+        
         addSimpleTable({ title: 'Ced V. Valuación de la Producción Terminada', colSpan: 3, headers: ['Unidades Terminadas', 'C.U.E.', 'Costo de la Prod. Term.'], data: [[{value: d.terminadas, numFmt: '#,##0'}, {value: costoUnitarioEstandar, numFmt: moneyFormat}, {value: ced5.total, numFmt: moneyFormat}]]});
         addSimpleTable({ title: 'Ced VI. Valuación del Inventario Final de Producción Terminada', colSpan: 5, headers: ['Unidades Terminadas', 'Unids Vendidas', 'Inventario Final', 'C.U.E.', 'Costo Total de Inv. Final PT'], data: [[{value: d.terminadas, numFmt: '#,##0'}, {value: d.vendidas, numFmt: '#,##0'}, {value: ced6.unidades, numFmt: '#,##0'}, {value: costoUnitarioEstandar, numFmt: moneyFormat}, {value: ced6.total, numFmt: moneyFormat}]]});
         addSimpleTable({ title: 'Ced VII. Costo de Ventas y Costo de lo Vendido', colSpan: 6, headers: ['Unidades Vendidas', 'PV', 'Ventas Totales', 'Unidades Vendidas', 'C.U.E.', 'Costo de Ventas'], data: [[{value: d.vendidas, numFmt: '#,##0'}, {value: d.precioVenta, numFmt: moneyFormat}, {value: er_display.ventasNetas, numFmt: moneyFormat}, {value: d.vendidas, numFmt: '#,##0'}, {value: costoUnitarioEstandar, numFmt: moneyFormat}, {value: er_display.costoVendidoEstandar, numFmt: moneyFormat}]]});
@@ -502,6 +578,7 @@
         };
         let endRowCostos = addCostStatement(edoCostosSheet, 'MÉTODO ABSORBENTE', ec_absorbente_display, 1, edoCostosCurrentRow);
         addCostStatement(edoCostosSheet, 'MÉTODO DIRECTO', ec_directo_display, 4, edoCostosCurrentRow);
+        addSignatures(edoCostosSheet, endRowCostos + 2, 1, 2);
         edoCostosSheet.columns.forEach((c,i) => { c.width = (i===0 || i===3) ? 35 : 20; });
         
         // --- HOJA 3: Estado de Resultados ---
@@ -526,6 +603,7 @@
             labelCell.border = thinBorder; valueCell.border = thinBorder;
             efCurrentRow++;
         });
+        addSignatures(edoResultadosSheet, efCurrentRow + 2, 1, 1);
         edoResultadosSheet.columns.forEach(c => { c.width = 35; });
         
         const buffer = await workbook.xlsx.writeBuffer();
